@@ -1,0 +1,51 @@
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name DEVICE EP4CE6E22C8
+set_global_assignment -name TOP_LEVEL_ENTITY board_top
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 21.1.1
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "16:26:57  APRIL 23, 2024"
+set_global_assignment -name LAST_QUARTUS_VERSION "21.1.1 Lite Edition"
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
+set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 1.2V
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+set_global_assignment -name SEARCH_PATH ..
+
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_WEAK_PULLUP "AS INPUT TRI-STATED"
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to *
+
+# -------------------------------------------------------------------------- #
+# Include files
+# -------------------------------------------------------------------------- #
+
+set_global_assignment -name SYSTEMVERILOG_FILE game_top.sv
+set_global_assignment -name SYSTEMVERILOG_FILE vga.sv
+
+# -------------------------------------------------------------------------- #
+# Set pins
+# -------------------------------------------------------------------------- #
+
+set_location_assignment PIN_23 -to clk_i
+set_location_assignment PIN_91 -to rst_n_i
+
+set_location_assignment PIN_69 -to led_o
+
+set_location_assignment PIN_86 -to key_i[1]
+set_location_assignment PIN_87 -to key_i[0]
+
+set_location_assignment PIN_2 -to vga_rgb_o[0]
+set_location_assignment PIN_1 -to vga_rgb_o[1]
+set_location_assignment PIN_144 -to vga_rgb_o[2]
+
+set_location_assignment PIN_143 -to vga_vs_o
+set_location_assignment PIN_142 -to vga_hs_o
+
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
