@@ -1,22 +1,27 @@
+`timescale 1ns / 100ps
+
 module tb;
 
-    localparam CLK_PERIOD = 10;
+    localparam CLK_PERIOD   = 20;
+    localparam RST_DURATION = 40;
+    localparam CLOCK_CYCLES = 10_000;
 
     logic clk;
     logic rst;
     logic hsync;
     logic vsync;
 
-    game_top dut (
-        .clk_i (clk),
-        .rst_n_i (rst),
-        .vga_vs_o (vsync),
-        .vga_hs_o (hsync)
+    board_top dut
+    (
+        .clk_i    ( clk   ),
+        .rst_n_i  ( rst   ),
+        .vga_vs_o ( vsync ),
+        .vga_hs_o ( hsync )
     );
 
     initial begin
         rst = 0;
-        #40;
+        #RST_DURATION;
         rst = 1;
     end
 
@@ -33,7 +38,7 @@ module tb;
     end
 
     initial begin
-        for (int i = 0;  i < 10000; i++)
+        for (int i = 0;  i < CLOCK_CYCLES; i++)
             @(posedge clk);
 
         $finish();
