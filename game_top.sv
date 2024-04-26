@@ -6,12 +6,11 @@ module game_top
 )
 (
     input  logic       clk_i,
-    input  logic       rst_n_i,
-    input  logic [1:0] key_i,
+    input  logic       rst_i,
+    input  logic [1:0] keys_i,
     output logic [2:0] vga_rgb_o,
     output logic       vga_vs_o,
-    output logic       vga_hs_o,
-    output logic       led_o
+    output logic       vga_hs_o
 );
 
     localparam x_w = $clog2(H_RES);
@@ -20,8 +19,6 @@ module game_top
     logic [x_w - 1:0] x_pos;
     logic [y_w - 1:0] y_pos;
     logic             visible_range;
-
-    wire rst = ~rst_n_i;
 
     vga # (
         .CLK_MHZ ( CLK_MHZ ),
