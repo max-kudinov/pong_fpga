@@ -29,7 +29,7 @@ module game_top
     )
     i_vga (
         .clk_i           ( clk_i         ),
-        .rst_i           ( rst           ),
+        .rst_i           ( rst_i         ),
         .hsync_o         ( vga_hs_o      ),
         .vsync_o         ( vga_vs_o      ),
         .x_pos_o         ( x_pos         ),

@@ -23,6 +23,7 @@ module board_top
         .H_RES   ( H_RES   ),
         .V_RES   ( V_RES   )
     )
+    i_game_top
     (
         .clk_i     ( clk_i     ),
         .rst_i     ( rst       ),
