@@ -88,7 +88,7 @@ module vga
             y_pos_o         <= '0;
             visible_range_o <= '0;
 
-        end else begin
+        end else if (pixel_clk_en) begin
             hsync_o         <= ~ (h_cnt >= HSYNC_START & h_cnt <= HSYNC_END);
             vsync_o         <= ~ (v_cnt >= VSYNC_START & v_cnt <= VSYNC_END);
 
