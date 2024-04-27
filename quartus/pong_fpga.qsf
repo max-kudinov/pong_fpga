@@ -36,10 +36,11 @@ set_global_assignment -name SYSTEMVERILOG_FILE vga.sv
 set_location_assignment PIN_23 -to clk_i
 set_location_assignment PIN_91 -to rst_n_i
 
-set_location_assignment PIN_69 -to led_o
+set_location_assignment PIN_69 -to leds_o[0]
+set_location_assignment PIN_70 -to leds_o[1]
 
-set_location_assignment PIN_86 -to key_i[1]
-set_location_assignment PIN_87 -to key_i[0]
+set_location_assignment PIN_86 -to keys_i[1]
+set_location_assignment PIN_87 -to keys_i[0]
 
 set_location_assignment PIN_2 -to vga_rgb_o[0]
 set_location_assignment PIN_1 -to vga_rgb_o[1]
