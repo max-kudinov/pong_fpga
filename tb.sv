@@ -8,15 +8,11 @@ module tb;
 
     logic clk;
     logic rst;
-    logic hsync;
-    logic vsync;
 
     board_top dut
     (
         .clk_i    ( clk   ),
-        .rst_n_i  ( rst   ),
-        .vga_vs_o ( vsync ),
-        .vga_hs_o ( hsync )
+        .rst_n_i  ( rst   )
     );
 
     initial begin
