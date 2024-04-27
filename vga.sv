@@ -61,19 +61,20 @@ module vga
     // Pixel counter
     always_ff @(posedge clk_i)
         if (rst_i)
-            h_cnt <= '0;
+            h_cnt     <= '0;
         else if (pixel_clk_en) begin
-            h_cnt <= h_cnt + 1'b1;
+            h_cnt     <= h_cnt + 1'b1;
 
-            if (h_cnt_max) h_cnt <= '0;
+            if (h_cnt_max)
+                h_cnt <= '0;
         end
 
     // Line counter
     always_ff @(posedge clk_i)
         if (rst_i)
-            v_cnt <= '0;
+            v_cnt     <= '0;
         else if (pixel_clk_en && h_cnt_max) begin
-            v_cnt <= v_cnt + 1'b1;
+            v_cnt     <= v_cnt + 1'b1;
 
             if (v_cnt == (V_TOTAL - 1))
                 v_cnt <= '0;
