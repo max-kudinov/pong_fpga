@@ -1,5 +1,6 @@
 a.out
 dump.vcd
+obj_dir/
 quartus/db
 quartus/incremental_db
 quartus/output_files
