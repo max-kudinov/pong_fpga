@@ -55,7 +55,7 @@ module vga
         else
             clk_en_cnt <= clk_en_cnt + 1'b1;
 
-    assign pixel_clk_en = clk_en_cnt == ((CLK_MHZ / PIXEL_CLK_MHZ) - 1);
+    assign pixel_clk_en = clk_en_cnt == w_clk_en_cnt' ((CLK_MHZ / PIXEL_CLK_MHZ) - 1);
     assign h_cnt_max    = h_cnt == (H_TOTAL - 1);
 
     // Pixel counter
@@ -92,8 +92,8 @@ module vga
             hsync_o         <= ~ (h_cnt >= HSYNC_START & h_cnt <= HSYNC_END);
             vsync_o         <= ~ (v_cnt >= VSYNC_START & v_cnt <= VSYNC_END);
 
-            x_pos_o         <= h_cnt;
-            y_pos_o         <= v_cnt;
+            x_pos_o         <= X_POS_W' (h_cnt);
+            y_pos_o         <= Y_POS_W' (v_cnt);
 
             visible_range_o <= ((h_cnt < H_RES) & (v_cnt < V_RES));
         end
