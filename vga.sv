@@ -48,7 +48,7 @@ module vga
     logic [     w_h_cnt - 1:0] h_cnt;
     logic [     w_v_cnt - 1:0] v_cnt;
 
-    // Generate enable with pixel clock frequency
+    // Generate enable for pixel clock frequency
     always_ff @(posedge clk_i)
         if (rst_i)
             clk_en_cnt <= '0;
