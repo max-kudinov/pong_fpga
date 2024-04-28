@@ -14,6 +14,7 @@ module game_top #(
 
     localparam x_w = $clog2(H_RES);
     localparam y_w = $clog2(V_RES);
+    localparam rand_w = 16;
 
     logic [x_w - 1:0] pixel_x;
     logic [y_w - 1:0] pixel_y;
@@ -30,27 +31,37 @@ module game_top #(
     // Ball 
     logic [  x_w-1:0] ball_x;
     logic [  y_w-1:0] ball_y;
-    logic [      7:0] ball_speed;
+    logic [      7:0] ball_speed_x;
+    logic [      7:0] ball_speed_y;
 
     logic             collision_player;
     logic             collision_pc;
 
+    logic [rand_w - 1:0] rnd_num;
+
     assign leds_o = keys_i;
 
     vga #(
-        .CLK_MHZ(CLK_MHZ),
-        .H_RES  (H_RES),
-        .V_RES  (V_RES),
-        .X_POS_W(x_w),
-        .Y_POS_W(y_w)
+        .CLK_MHZ ( CLK_MHZ ),
+        .H_RES   ( H_RES   ),
+        .V_RES   ( V_RES   ),
+        .X_POS_W ( x_w     ),
+        .Y_POS_W ( y_w     )
     ) i_vga (
-        .clk_i           (clk_i),
-        .rst_i           (rst_i),
-        .hsync_o         (vga_hs_o),
-        .vsync_o         (vga_vs_o),
-        .pixel_x_o       (pixel_x),
-        .pixel_y_o       (pixel_y),
-        .visible_range_o (visible_range)
+        .clk_i           ( clk_i         ),
+        .rst_i           ( rst_i         ),
+        .hsync_o         ( vga_hs_o      ),
+        .vsync_o         ( vga_vs_o      ),
+        .pixel_x_o       ( pixel_x       ),
+        .pixel_y_o       ( pixel_y       ),
+        .visible_range_o ( visible_range )
+    );
+
+    random #(.WIDTH(rand_w)) i_random
+    (
+        .clk_i     ( clk_i   ),
+        .rst_i     ( rst_i   ),
+        .rnd_num_o ( rnd_num )
     );
 
     logic last_vsync;
@@ -66,46 +77,75 @@ module game_top #(
     always_ff @(posedge clk_i)
         if (rst_i) player_paddle_y <= y_w'(V_RES / 2);
         else if (frame_change) begin
-            if (keys_i[0] && player_paddle_y < (y_w'(V_RES) - y_w'(10 + 50)))
+            if (keys_i[0] && player_paddle_y < (y_w'(V_RES) - y_w'(5 + 50)))
                 player_paddle_y <= player_paddle_y + y_w'(5);
 
-            if (keys_i[1] && player_paddle_y > y_w'(10))
+            if (keys_i[1] && player_paddle_y > y_w'(5))
                 player_paddle_y <= player_paddle_y - y_w'(5);
         end
 
     // Computer paddle movement
     always_ff @(posedge clk_i)
-        if (rst_i) pc_paddle_y <= y_w'(V_RES / 2);
+        if (rst_i)
+            pc_paddle_y <= y_w'(V_RES / 2);
         else if (frame_change) begin
-            if (keys_i[0] && pc_paddle_y < (y_w'(V_RES) - y_w'(10 + 50)))
-                pc_paddle_y <= pc_paddle_y + y_w'(5);
+            if (pc_paddle_y + 15 > ball_y && pc_paddle_y > 5)
+                pc_paddle_y <= pc_paddle_y - y_w' (5);
 
-            if (keys_i[1] && pc_paddle_y > y_w'(10)) pc_paddle_y <= pc_paddle_y - y_w'(5);
+            else if (pc_paddle_y + 45 < ball_y && pc_paddle_y + 50 < V_RES - 5)
+                pc_paddle_y <= pc_paddle_y + y_w' (5);
+
+            // pc_paddle_y <= ball_y;
         end
 
     // Ball movement
     always_ff @(posedge clk_i)
         if (rst_i) begin
-            ball_x     <= x_w'(320);
-            ball_speed <= 8'd2;
+            ball_x     <= x_w'(H_RES / 2);
+            ball_y     <= y_w'(V_RES / 2);
+            ball_speed_x <= 8'd2;
+            ball_speed_y <= 8'd1;
         end else if (frame_change) begin
-            if (ball_speed[7]) ball_x <= ball_x - ball_speed[6:0];
-            else ball_x <= ball_x + ball_speed[6:0];
+            if (ball_speed_x[7])
+                ball_x <= ball_x - ball_speed_x[6:0];
+            else
+                ball_x <= ball_x + ball_speed_x[6:0];
+
+            if (ball_speed_y[7])
+                ball_y <= ball_y - ball_speed_y[6:0];
+            else
+                ball_y <= ball_y + ball_speed_y[6:0];
 
             if (collision_player) begin
-                ball_speed[7] <= 1'b1;
-                // ball_speed[6:0] <= ball_speed + 1'b1;
-            end else if (collision_pc) begin
-                ball_speed[7] <= 1'b0;
-                // ball_speed[6:0] <= ball_speed + 1'b1;
+                ball_speed_x[7]   <= 1'b1;
+                // ball_speed_x[6:0] <= 7' ({ rnd_num[3:2], 1'b1 });
+                // ball_speed_y[6:0] <= 7' (rnd_num[1:0]);
             end
 
-            if ((ball_x > H_RES) || (ball_x < 1)) ball_x <= 320;
+            if (collision_pc) begin
+                ball_speed_x[7]   <= 1'b0;
+                // ball_speed_x[6:0] <= 7' ({ rnd_num[3:2], 1'b1 });
+                // ball_speed_y[6:0] <= 7' (rnd_num[1:0]);
+            end
+
+            if ((ball_x > H_RES) || (ball_x < 1)) begin
+                ball_x <= H_RES / 2;
+                ball_y <= V_RES / 2;
+
+                ball_speed_x[7]   <=    (rnd_num[rand_w - 1]);
+                // ball_speed_x[6:0] <= 7' (rnd_num[3:2] + 1'b1);
+                ball_speed_y[7]   <=    (rnd_num[0]);
+                // ball_speed_y[6:0] <= 7' (rnd_num[1:0]);
+            end
+
+            if (ball_y < 5)
+                ball_speed_y[7] <= 1'b0;
+            if (ball_y + 10 > V_RES)
+                ball_speed_y[7] <= 1'b1;
         end
 
     assign player_paddle_x = x_w'(H_RES - 20);
     assign pc_paddle_x     = x_w'(20);
-    assign ball_y          = y_w'(V_RES / 2);
 
     always_comb begin
         collision_player = '0;
