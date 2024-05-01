@@ -49,4 +49,5 @@ set_location_assignment PIN_144 -to vga_rgb_o[2]
 set_location_assignment PIN_143 -to vga_vs_o
 set_location_assignment PIN_142 -to vga_hs_o
 
+
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

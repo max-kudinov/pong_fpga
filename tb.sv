@@ -9,11 +9,13 @@ module tb;
     logic clk;
     logic rst;
 
+    // verilator lint_off PINMISSING
     board_top dut
     (
-        .clk_i    ( clk   ),
-        .rst_n_i  ( rst   )
+        .clk_i     ( clk   ),
+        .rst_n_i   ( rst   )
     );
+    // verilator lint_on PINMISSING
 
     initial begin
         rst = 0;
