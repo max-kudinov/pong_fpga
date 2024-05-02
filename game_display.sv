@@ -78,6 +78,12 @@ module game_display (
                 on_pc_paddle    : vga_rgb_w = pc_paddle_rgb;
                 on_ball         : vga_rgb_w = ball_rgb;
             endcase
+
+            // Display static separator
+            if (vga_x_pos_i > `SCREEN_H_RES / 2 - `SEPARATOR_WIDTH / 2 &&
+                vga_x_pos_i < `SCREEN_H_RES / 2 + `SEPARATOR_WIDTH / 2 &&
+               (vga_y_pos_i + 9 & 31) < `SEPARATOR_DOT_HEIGHT)
+                vga_rgb_w = '1;
         end
     end
 

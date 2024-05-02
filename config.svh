@@ -52,5 +52,7 @@
 `define BALL_SIDE 10
 
 `define SCREEN_BORDER 5
+`define SEPARATOR_WIDTH 6
+`define SEPARATOR_DOT_HEIGHT 18
 
 `endif
