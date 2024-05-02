@@ -50,6 +50,7 @@
 `define PC_PADDLE_HEIGHT 50
 
 `define BALL_SIDE 10
+`define BALL_SPEED_W 8
 
 `define SCREEN_BORDER 5
 `define SEPARATOR_WIDTH 6
