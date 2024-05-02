@@ -8,15 +8,18 @@ module sprite_display #(
     input  logic [  `Y_POS_W - 1:0] rect_y,
     input  logic [  `X_POS_W - 1:0] pixel_x,
     input  logic [  `Y_POS_W - 1:0] pixel_y,
-    output logic [`VGA_RGB_W - 1:0] vga_rgb_o
+    output logic [`VGA_RGB_W - 1:0] vga_rgb_o,
+    output logic                    on_sprite
 );
 
     always_comb begin
         vga_rgb_o = '0;
+        on_sprite = '0;
 
         if (pixel_x > rect_x && pixel_x < rect_x + RECT_W &&
            (pixel_y > rect_y && pixel_y < rect_y + RECT_H)) begin
             vga_rgb_o = '1;
+            on_sprite = '1;
         end
     end
 

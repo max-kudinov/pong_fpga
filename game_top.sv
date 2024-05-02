@@ -52,6 +52,21 @@ module game_top (
         .rnd_num_o ( rnd_num )
     );
 
+    game_display i_game_display (
+        .clk_i               ( clk_i           ),
+        .rst_i               ( rst_i           ),
+        .vga_x_pos_i         ( x_pos           ),
+        .vga_y_pos_i         ( y_pos           ),
+        .player_paddle_x_i   ( player_paddle_x ),
+        .player_paddle_y_i   ( player_paddle_y ),
+        .pc_paddle_x_i       ( pc_paddle_x     ),
+        .pc_paddle_y_i       ( pc_paddle_y     ),
+        .ball_x_i            ( ball_x          ),
+        .ball_y_i            ( ball_y          ),
+        .vga_visible_range_i ( visible_range   ),
+        .vga_rgb_o           ( vga_rgb_o       )
+    );
+
     logic last_vsync;
     logic frame_change;
 
@@ -155,83 +170,5 @@ module game_top (
             (pc_paddle_y < ball_y      + `SCREEN_BORDER))
             collision_pc = 1'b1;
     end
-
-    logic [`VGA_RGB_W - 1:0] player_rgb;
-    logic [`VGA_RGB_W - 1:0] pc_rgb;
-    logic [`VGA_RGB_W - 1:0] ball_rgb;
-
-    // player
-    sprite_display #(
-        .RECT_W (`PLAYER_PADDLE_WIDTH),
-        .RECT_H (`PLAYER_PADDLE_HEIGHT)
-    ) i_player (
-        .rect_x (player_paddle_x),
-        .rect_y (player_paddle_y),
-        .pixel_x (x_pos),
-        .pixel_y (y_pos),
-        .vga_rgb_o (player_rgb)
-    );
-
-    // computer
-    sprite_display #(
-        .RECT_W (`PC_PADDLE_WIDTH),
-        .RECT_H (`PC_PADDLE_HEIGHT)
-    ) i_computer (
-        .rect_x (pc_paddle_x),
-        .rect_y (pc_paddle_y),
-        .pixel_x (x_pos),
-        .pixel_y (y_pos),
-        .vga_rgb_o (pc_rgb)
-    );
-
-    // ball
-    sprite_display #(
-        .RECT_W (`BALL_SIDE),
-        .RECT_H (`BALL_SIDE)
-    ) i_ball (
-        .rect_x (ball_x),
-        .rect_y (ball_y),
-        .pixel_x (x_pos),
-        .pixel_y (y_pos),
-        .vga_rgb_o (ball_rgb)
-    );
-
-    assign vga_rgb_w = { 3 {|{ player_rgb, pc_rgb,  ball_rgb }}};
-
-    always_ff @(posedge clk_i)
-        if (rst_i)
-            vga_rgb_o <= '0;
-        else if (~visible_range)
-            vga_rgb_o <= '0;
-        else
-            vga_rgb_o <= vga_rgb_w;
-
-    // always_comb begin
-    //     vga_rgb_o = '0;
-    //
-    //     if (visible_range) begin
-    //         // Draw player paddle
-    //         if (x_pos > `X_POS_W' (player_paddle_x) && x_pos < `X_POS_W' (32' (player_paddle_x) + `PLAYER_PADDLE_WIDTH) &&
-    //             (y_pos > `Y_POS_W' (player_paddle_y) && y_pos < `Y_POS_W' (32' (player_paddle_y) + `PLAYER_PADDLE_HEIGHT))) begin
-    //             vga_rgb_o = '1;
-    //         end
-    //
-    //         // Draw computer paddle
-    //         if (x_pos > `X_POS_W' (pc_paddle_x) && x_pos < `X_POS_W' (32' (pc_paddle_x) + `PC_PADDLE_WIDTH) &&
-    //             (y_pos > `Y_POS_W' (pc_paddle_y) && y_pos < `Y_POS_W' (32' (pc_paddle_y) + `PC_PADDLE_HEIGHT))) begin
-    //             vga_rgb_o = '1;
-    //         end
-    //
-    //         // Draw ball
-    //         if (x_pos > `X_POS_W' (ball_x) && x_pos < `X_POS_W' (32' (ball_x) + `BALL_SIDE) &&
-    //             (y_pos > `Y_POS_W' (ball_y) && y_pos < `Y_POS_W' (32' (ball_y) + `BALL_SIDE))) begin
-    //             vga_rgb_o = '1;
-    //         end
-    //
-    //
-    //         // if (x_pos > 320 && x_pos < 360 && y_pos > 240 && y_pos < 280)
-    //         //     vga_rgb_o = '1;
-    //     end
-    // end
 
 endmodule
