@@ -3,9 +3,6 @@
 module game_display (
     input  logic                    clk_i,
     input  logic                    rst_i,
- 
-    input  logic [`X_POS_W - 1:0]   vga_x_pos_i,
-    input  logic [`Y_POS_W - 1:0]   vga_y_pos_i,
 
     input  logic [`X_POS_W - 1:0]   player_paddle_x_i,
     input  logic [`Y_POS_W - 1:0]   player_paddle_y_i,
@@ -15,8 +12,10 @@ module game_display (
 
     input  logic [`X_POS_W - 1:0]   ball_x_i,
     input  logic [`Y_POS_W - 1:0]   ball_y_i,
+
+    output logic                    vga_hs_o,
+    output logic                    vga_vs_o,
     
-    input  logic                    vga_visible_range_i,
     output logic [`VGA_RGB_W - 1:0] vga_rgb_o 
 );
     logic [`VGA_RGB_W - 1:0] vga_rgb_w;
@@ -24,9 +23,24 @@ module game_display (
     logic [`VGA_RGB_W - 1:0] pc_paddle_rgb;
     logic [`VGA_RGB_W - 1:0] ball_rgb;
 
+    logic [`X_POS_W - 1:0] vga_x_pos;
+    logic [`Y_POS_W - 1:0] vga_y_pos;
+
+    logic                  vga_visible_range;
+
     logic                    on_player_paddle;
     logic                    on_pc_paddle;
     logic                    on_ball;
+
+    vga i_vga (
+        .clk_i           ( clk_i             ),
+        .rst_i           ( rst_i             ),
+        .hsync_o         ( vga_hs_o          ),
+        .vsync_o         ( vga_vs_o          ),
+        .pixel_x_o       ( vga_x_pos         ),
+        .pixel_y_o       ( vga_y_pos         ),
+        .visible_range_o ( vga_visible_range )
+    );
 
     // Display player paddle
     sprite_display #(
@@ -35,8 +49,8 @@ module game_display (
     ) i_player (
         .rect_x    ( player_paddle_x_i ),
         .rect_y    ( player_paddle_y_i ),
-        .pixel_x   ( vga_x_pos_i       ),
-        .pixel_y   ( vga_y_pos_i       ),
+        .pixel_x   ( vga_x_pos         ),
+        .pixel_y   ( vga_y_pos         ),
         .on_sprite ( on_player_paddle  ),
         .vga_rgb_o ( player_paddle_rgb )
     );
@@ -48,8 +62,8 @@ module game_display (
     ) i_computer (
         .rect_x    ( pc_paddle_x_i ),
         .rect_y    ( pc_paddle_y_i ),
-        .pixel_x   ( vga_x_pos_i   ),
-        .pixel_y   ( vga_y_pos_i   ),
+        .pixel_x   ( vga_x_pos     ),
+        .pixel_y   ( vga_y_pos     ),
         .on_sprite ( on_pc_paddle  ),
         .vga_rgb_o ( pc_paddle_rgb )
     );
@@ -61,8 +75,8 @@ module game_display (
     ) i_ball (
         .rect_x    ( ball_x_i    ),
         .rect_y    ( ball_y_i    ),
-        .pixel_x   ( vga_x_pos_i ),
-        .pixel_y   ( vga_y_pos_i ),
+        .pixel_x   ( vga_x_pos   ),
+        .pixel_y   ( vga_y_pos   ),
         .on_sprite ( on_ball     ),
         .vga_rgb_o ( ball_rgb    )
     );
@@ -71,7 +85,7 @@ module game_display (
     always_comb begin
         vga_rgb_w = '0;
 
-        if (vga_visible_range_i) begin
+        if (vga_visible_range) begin
             // Colors might overlap, but we're fine with any case
             unique case (1'b1)
                 on_player_paddle: vga_rgb_w = player_paddle_rgb;
@@ -80,9 +94,9 @@ module game_display (
             endcase
 
             // Display static separator
-            if (vga_x_pos_i > `SCREEN_H_RES / 2 - `SEPARATOR_WIDTH / 2 &&
-                vga_x_pos_i < `SCREEN_H_RES / 2 + `SEPARATOR_WIDTH / 2 &&
-               (vga_y_pos_i + 9 & 31) < `SEPARATOR_DOT_HEIGHT)
+            if (vga_x_pos > `SCREEN_H_RES / 2 - `SEPARATOR_WIDTH / 2 &&
+                vga_x_pos < `SCREEN_H_RES / 2 + `SEPARATOR_WIDTH / 2 &&
+               (vga_y_pos + 9 & 31) < `SEPARATOR_DOT_HEIGHT)
                 vga_rgb_w = '1;
         end
     end

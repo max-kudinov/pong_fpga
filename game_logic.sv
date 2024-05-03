@@ -33,7 +33,7 @@ module game_logic (
 
     logic [`RND_NUM_W - 1:0] rnd_num;
 
-    localparam freq_cnt_max = `BOARD_CLK_MHZ * 1_000_000 / 30;
+    localparam freq_cnt_max = `BOARD_CLK_MHZ * 1_000_000 / 60;
     localparam cnt_w = $clog2(freq_cnt_max + 1);
 
     random i_random (
