@@ -15,18 +15,19 @@ module game_display (
 
     output logic                    vga_hs_o,
     output logic                    vga_vs_o,
-    
-    output logic [`VGA_RGB_W - 1:0] vga_rgb_o 
+    output logic [`VGA_RGB_W - 1:0] vga_rgb_o,
+
+    output logic                    new_frame_o
 );
     logic [`VGA_RGB_W - 1:0] vga_rgb_w;
     logic [`VGA_RGB_W - 1:0] player_paddle_rgb;
     logic [`VGA_RGB_W - 1:0] pc_paddle_rgb;
     logic [`VGA_RGB_W - 1:0] ball_rgb;
 
-    logic [`X_POS_W - 1:0] vga_x_pos;
-    logic [`Y_POS_W - 1:0] vga_y_pos;
-
-    logic                  vga_visible_range;
+    logic [`X_POS_W - 1:0]   vga_x_pos;
+    logic [`Y_POS_W - 1:0]   vga_y_pos;
+    logic                    vga_visible_range;
+    logic                    vga_vs_prev;
 
     logic                    on_player_paddle;
     logic                    on_pc_paddle;
@@ -44,8 +45,8 @@ module game_display (
 
     // Display player paddle
     sprite_display #(
-        .RECT_W    ( `PLAYER_PADDLE_WIDTH  ),
-        .RECT_H    ( `PLAYER_PADDLE_HEIGHT )
+        .RECT_W    ( `PADDLE_WIDTH  ),
+        .RECT_H    ( `PADDLE_HEIGHT )
     ) i_player (
         .rect_x    ( player_paddle_x_i ),
         .rect_y    ( player_paddle_y_i ),
@@ -57,8 +58,8 @@ module game_display (
 
     // Display computer paddle
     sprite_display #(
-        .RECT_W    ( `PC_PADDLE_WIDTH  ),
-        .RECT_H    ( `PC_PADDLE_HEIGHT )
+        .RECT_W    ( `PADDLE_WIDTH  ),
+        .RECT_H    ( `PADDLE_HEIGHT )
     ) i_computer (
         .rect_x    ( pc_paddle_x_i ),
         .rect_y    ( pc_paddle_y_i ),
@@ -106,5 +107,13 @@ module game_display (
             vga_rgb_o <= '0;
         else
             vga_rgb_o <= vga_rgb_w;
+
+    always_ff @(posedge clk_i)
+        if (rst_i)
+            vga_vs_prev <= '0;
+        else
+            vga_vs_prev <= vga_vs_o;
+
+    assign new_frame_o = vga_vs_prev && ~vga_vs_o;
 
 endmodule

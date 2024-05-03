@@ -22,12 +22,15 @@ module game_top (
     logic [`X_POS_W - 1:0] ball_x;
     logic [`Y_POS_W - 1:0] ball_y;
 
+    logic                  new_frame;
+
     assign leds_o = keys_i;
 
     game_logic i_game_logic (
         .clk_i             ( clk_i           ),
         .rst_i             ( rst_i           ),
         .keys_i            ( keys_i          ),
+        .new_frame_i       ( new_frame       ),
         .player_paddle_x_o ( player_paddle_x ),
         .player_paddle_y_o ( player_paddle_y ),
         .pc_paddle_x_o     ( pc_paddle_x     ),
@@ -47,7 +50,8 @@ module game_top (
         .ball_y_i            ( ball_y          ),
         .vga_hs_o            ( vga_hs_o        ),
         .vga_vs_o            ( vga_vs_o        ),
-        .vga_rgb_o           ( vga_rgb_o       )
+        .vga_rgb_o           ( vga_rgb_o       ),
+        .new_frame_o         ( new_frame       )
     );
 
 endmodule
