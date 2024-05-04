@@ -17,6 +17,9 @@ module game_logic (
     output logic [`Y_POS_W - 1:0] ball_y_o
 
 );
+    localparam [`Y_POS_W - 1:0] DOWN_LIMIT    = `SCREEN_V_RES - (`SCREEN_BORDER + `PADDLE_HEIGHT);
+    localparam [`Y_POS_W - 1:0] PADDLE_CENTER = `PADDLE_HEIGHT / 2;
+
     logic [`Y_POS_W - 1:0]  player_paddle_y_w;
     logic [`Y_POS_W - 1:0]  pc_paddle_y_w;
     logic [`Y_POS_W - 1:0]  pc_paddle_center;
@@ -37,14 +40,60 @@ module game_logic (
     logic                    key_up;
     logic                    key_down;
 
+    logic                    collision_player;
+    logic                    collision_pc;
+
+    logic [`X_POS_W - 1:0]   player_paddle_right;
+    logic [`Y_POS_W - 1:0]   player_paddle_bottom;
+
+    logic [`X_POS_W - 1:0]   pc_paddle_right;
+    logic [`Y_POS_W - 1:0]   pc_paddle_bottom;
+
+    logic [`X_POS_W - 1:0]   ball_right;
+    logic [`Y_POS_W - 1:0]   ball_bottom;
+
+    assign player_paddle_right  =  player_paddle_x_o + `PADDLE_WIDTH;
+    assign player_paddle_bottom =  player_paddle_y_o + `PADDLE_HEIGHT;
+
+    assign pc_paddle_right      =  pc_paddle_x_o + `PADDLE_WIDTH;
+    assign pc_paddle_bottom     =  pc_paddle_y_o + `PADDLE_HEIGHT;
+
+    assign ball_right           =  ball_x_o + `BALL_SIDE;
+    assign ball_bottom          =  ball_y_o + `BALL_SIDE;
+
     random i_random (
         .clk_i     ( clk_i   ),
         .rst_i     ( rst_i   ),
         .rnd_num_o ( rnd_num )
     );
 
-    localparam [`Y_POS_W - 1:0] DOWN_LIMIT    = `SCREEN_V_RES - (`SCREEN_BORDER + `PADDLE_HEIGHT);
-    localparam [`Y_POS_W - 1:0] PADDLE_CENTER = `PADDLE_HEIGHT / 2;
+    sprite_collision i_player_collision (
+        .clk_i        ( clk_i                ),
+        .rst_i        ( rst_i                ),
+        .rect1_left   ( player_paddle_x_o    ),
+        .rect1_right  ( player_paddle_right  ),
+        .rect1_top    ( player_paddle_y_o    ),
+        .rect1_bottom ( player_paddle_bottom ),
+        .rect2_left   ( ball_x_o             ),
+        .rect2_right  ( ball_right           ),
+        .rect2_top    ( ball_y_o             ),
+        .rect2_bottom ( ball_bottom          ),
+        .collision    ( collision_player     )
+    );
+
+    sprite_collision i_pc_collision (
+        .clk_i        ( clk_i            ),
+        .rst_i        ( rst_i            ),
+        .rect1_left   ( pc_paddle_x_o    ),
+        .rect1_right  ( pc_paddle_right  ),
+        .rect1_top    ( pc_paddle_y_o    ),
+        .rect1_bottom ( pc_paddle_bottom ),
+        .rect2_left   ( ball_x_o         ),
+        .rect2_right  ( ball_right       ),
+        .rect2_top    ( ball_y_o         ),
+        .rect2_bottom ( ball_bottom      ),
+        .collision    ( collision_pc     )
+    );
 
     assign key_up   = keys_i[0];
     assign key_down = keys_i[1];
@@ -102,6 +151,7 @@ module game_logic (
         ball_x_w = ball_x_o;
         ball_y_w = ball_y_o;
 
+        // todo add signed speed, cause this shit is stupid
         if (ball_speed_x[`BALL_SPEED_W - 1])
             ball_x_w = ball_x_o - ball_speed_x[`BALL_SPEED_W - 2:0];
         else
@@ -116,16 +166,10 @@ module game_logic (
         ball_speed_x_d = ball_speed_x;
         ball_speed_y_d = ball_speed_y;
 
-        // Check collision with player paddle
-        if ((player_paddle_x_o < ball_x_w          + `BALL_SIDE) &&
-            (ball_y_w          < player_paddle_y_w + `PADDLE_HEIGHT) &&
-            (player_paddle_y_w < ball_y_w          + `SCREEN_BORDER))
+        if (collision_player)
             ball_speed_x_d[`BALL_SPEED_W - 1] = 1'b1;
 
-        // Check collision with computer paddle
-        if ((ball_x_w      < pc_paddle_x_o + `BALL_SIDE) &&
-            (ball_y_w      < pc_paddle_y_w + `PADDLE_HEIGHT) &&
-            (pc_paddle_y_w < ball_y_w      + `SCREEN_BORDER))
+        if (collision_pc)
             ball_speed_x_d[`BALL_SPEED_W - 1] = 1'b0;
 
             if ((ball_x_w > `SCREEN_H_RES) || (ball_x_w < 1)) begin

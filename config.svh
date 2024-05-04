@@ -44,7 +44,7 @@
 `define PADDLE_WIDTH 10
 `define PADDLE_HEIGHT 50
 
-`define PLAYER_SPEED 8
+`define PLAYER_SPEED 2 
 
 `define BALL_SIDE 10
 `define BALL_SPEED_W 8
