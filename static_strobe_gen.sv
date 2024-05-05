@@ -1,0 +1,26 @@
+`include "config.svh"
+
+module static_strobe_gen #(
+    parameter STROBE_FREQ_HZ = 1
+) (
+    input  logic clk_i,
+    input  logic rst_i,
+    output logic strobe
+);
+
+    localparam CNT_MAX = `BOARD_CLK_MHZ * 1_000_000 / STROBE_FREQ_HZ;
+    localparam CNT_W   = $clog2(CNT_MAX + 1);
+
+    logic [CNT_W - 1:0] cnt;
+
+    always_ff @(posedge clk_i)
+        if (rst_i)
+            cnt <= '0;
+        else if (cnt == CNT_MAX)
+            cnt <= '0;
+        else
+            cnt <= cnt + 1'b1;
+
+    assign strobe = cnt == CNT_MAX;
+
+endmodule

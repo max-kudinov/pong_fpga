@@ -3,9 +3,7 @@
 module game_logic (
     input  logic                  clk_i,
     input  logic                  rst_i,
-
     input  logic [`KEYS_W - 1:0]  keys_i,
-    input  logic                  new_frame_i,
 
     output logic [`X_POS_W - 1:0] player_paddle_x_o,
     output logic [`Y_POS_W - 1:0] player_paddle_y_o,
@@ -20,6 +18,11 @@ module game_logic (
     localparam [`Y_POS_W - 1:0] DOWN_LIMIT    = `SCREEN_V_RES - (`SCREEN_BORDER + `PADDLE_HEIGHT);
     localparam [`Y_POS_W - 1:0] PADDLE_CENTER = `PADDLE_HEIGHT / 2;
 
+    logic                   update_pc;
+    logic                   update_ball_x;
+    logic                   update_ball_y;
+    logic                   update_player;
+
     logic [`Y_POS_W - 1:0]  player_paddle_y_w;
     logic [`Y_POS_W - 1:0]  pc_paddle_y_w;
     logic [`Y_POS_W - 1:0]  pc_paddle_center;
@@ -30,8 +33,14 @@ module game_logic (
     logic [`BALL_SPEED_W - 1:0] ball_speed_x;
     logic [`BALL_SPEED_W - 1:0] ball_speed_y;
 
-    logic [`BALL_SPEED_W - 1:0] ball_speed_x_d;
-    logic [`BALL_SPEED_W - 1:0] ball_speed_y_d;
+    logic [`BALL_SPEED_W - 1:0] ball_speed_x_w;
+    logic [`BALL_SPEED_W - 1:0] ball_speed_y_w;
+
+    logic ball_dir_x_w;
+    logic ball_dir_y_w;
+
+    logic ball_dir_x;
+    logic ball_dir_y;
 
     logic [`Y_POS_W - 1:0] pc_speed_y_d;
 
@@ -60,6 +69,37 @@ module game_logic (
 
     assign ball_right           =  ball_x_o + `BALL_SIDE;
     assign ball_bottom          =  ball_y_o + `BALL_SIDE;
+
+    static_strobe_gen #(.STROBE_FREQ_HZ(`PC_SPEED)) i_pc_strobe_gen
+    (
+        .clk_i  ( clk_i  ),
+        .rst_i  ( rst_i  ),
+        .strobe ( update_pc )
+    );
+
+    static_strobe_gen #(.STROBE_FREQ_HZ(`PLAYER_SPEED)) i_player_strobe_gen
+    (
+        .clk_i  ( clk_i         ),
+        .rst_i  ( rst_i         ),
+        .strobe ( update_player )
+    );
+
+    dynamic_strobe_gen #(.FREQ_W (`BALL_SPEED_W)) i_ball_speed_x_gen
+    (
+        .clk_i       ( clk_i         ),
+        .rst_i       ( rst_i         ),
+        .strobe_freq ( ball_speed_x  ),
+        .strobe_o    ( update_ball_x )
+    );
+
+    dynamic_strobe_gen #(.FREQ_W (`BALL_SPEED_W)) i_ball_speed_y_gen
+    (
+        .clk_i       ( clk_i         ),
+        .rst_i       ( rst_i         ),
+        .strobe_freq ( ball_speed_y  ),
+        .strobe_o    ( update_ball_y )
+    );
+
 
     random i_random (
         .clk_i     ( clk_i   ),
@@ -104,17 +144,17 @@ module game_logic (
 
         // Move down
         if (key_down && (player_paddle_y_o < DOWN_LIMIT))
-            player_paddle_y_w = player_paddle_y_o + `PLAYER_SPEED;
+            player_paddle_y_w = player_paddle_y_o + 1'b1;
 
         // Move up
         if (key_up && (player_paddle_y_o > `SCREEN_BORDER))
-            player_paddle_y_w = player_paddle_y_o - `PLAYER_SPEED;
+            player_paddle_y_w = player_paddle_y_o - 1'b1;
     end
 
     always_ff @(posedge clk_i)
         if (rst_i) 
             player_paddle_y_o <= `Y_POS_W' (`SCREEN_V_RES / 2);
-        else if (new_frame_i) 
+        else if (update_player) 
             player_paddle_y_o <= player_paddle_y_w;
 
     assign player_paddle_x_o = `X_POS_W' (`SCREEN_H_RES - 20); 
@@ -127,13 +167,11 @@ module game_logic (
 
 
         if ((pc_paddle_center > ball_y_o) && (pc_paddle_y_o > `SCREEN_BORDER)) begin
-            pc_speed_y_d  = (pc_paddle_center - ball_y_o) & `Y_POS_W' (3);   
-            pc_paddle_y_w = pc_paddle_y_o - pc_speed_y_d;
+            pc_paddle_y_w = pc_paddle_y_o - 1'b1;
         end
 
         if ((pc_paddle_center < ball_y_o) && (pc_paddle_y_o < DOWN_LIMIT)) begin
-            pc_speed_y_d  = (ball_y_o - pc_paddle_center) & `Y_POS_W' (3);  
-            pc_paddle_y_w = pc_paddle_y_o + pc_speed_y_d;
+            pc_paddle_y_w = pc_paddle_y_o + 1'b1;
 
         end
     end
@@ -141,7 +179,7 @@ module game_logic (
     always_ff @(posedge clk_i)
         if (rst_i) 
             pc_paddle_y_o <= `Y_POS_W' (`SCREEN_V_RES / 2);
-        else if (new_frame_i)
+        else if (update_pc)
             pc_paddle_y_o <= pc_paddle_y_w;
         
     assign pc_paddle_x_o = `X_POS_W' (20); 
@@ -151,59 +189,71 @@ module game_logic (
         ball_x_w = ball_x_o;
         ball_y_w = ball_y_o;
 
-        // todo add signed speed, cause this shit is stupid
-        if (ball_speed_x[`BALL_SPEED_W - 1])
-            ball_x_w = ball_x_o - ball_speed_x[`BALL_SPEED_W - 2:0];
-        else
-            ball_x_w = ball_x_o + ball_speed_x[`BALL_SPEED_W - 2:0];
+        ball_dir_y_w = ball_dir_y;
+        ball_dir_x_w = ball_dir_x;
 
-        if (ball_speed_y[`BALL_SPEED_W - 1])
-            ball_y_w = ball_y_o - ball_speed_y[`BALL_SPEED_W - 2:0];
-        else
-            ball_y_w = ball_y_o + ball_speed_y[`BALL_SPEED_W - 2:0];
+        ball_speed_x_w = ball_speed_x;
+        ball_speed_y_w = ball_speed_y;
 
-        // Calculate new ball speed
-        ball_speed_x_d = ball_speed_x;
-        ball_speed_y_d = ball_speed_y;
+        ball_x_w = ball_dir_x ? ball_x_o - 1'b1 : ball_x_o + 1'b1;
+        ball_y_w = ball_dir_y ? ball_y_o - 1'b1 : ball_y_o + 1'b1;
 
-        if (collision_player)
-            ball_speed_x_d[`BALL_SPEED_W - 1] = 1'b1;
+        if (collision_player) begin
+            ball_dir_x_w = 1'b1;
+            ball_speed_x_w = rnd_num[7:0];
+            ball_speed_y_w = rnd_num[14:8];
+        end
 
-        if (collision_pc)
-            ball_speed_x_d[`BALL_SPEED_W - 1] = 1'b0;
+        if (collision_pc) begin
+            ball_dir_x_w = 1'b0;
+            ball_speed_x_w = rnd_num[7:0];
+            ball_speed_y_w = rnd_num[14:8];
+        end
 
-            if ((ball_x_w > `SCREEN_H_RES) || (ball_x_w < 1)) begin
-                ball_x_w = `SCREEN_H_RES / 2;
-                ball_y_w = `SCREEN_V_RES / 2;
+        if ((ball_x_o > `SCREEN_H_RES) || (ball_x_o < 1)) begin
+            ball_x_w = `SCREEN_H_RES / 2;
+            ball_y_w = `SCREEN_V_RES / 2;
 
-                ball_speed_x_d[7]   =    (rnd_num[`RND_NUM_W - 1]);
-                // ball_speed_x_d[6:0] <= 7' (rnd_num[3:2] + 1'b1);
-                ball_speed_y_d[7]   =    (rnd_num[0]);
-                // ball_speed_y[6:0] <= 7' (rnd_num[1:0]);
-            end
+            ball_dir_x_w   =    rnd_num[`RND_NUM_W - 1];
+            ball_dir_y_w   =    rnd_num[0];
 
-            if (ball_y_w < `SCREEN_BORDER)
-                ball_speed_y_d[7] = 1'b0;
-            if (ball_y_w + `SCREEN_BORDER > `SCREEN_V_RES)
-                ball_speed_y_d[7] = 1'b1;
+            ball_speed_x_w = rnd_num[7:0];
+            ball_speed_y_w = rnd_num[14:8];
+        end
+
+        if (ball_y_o < `SCREEN_BORDER)
+            ball_dir_y_w = 1'b0;
+        if (ball_y_o + `SCREEN_BORDER > `SCREEN_V_RES)
+            ball_dir_y_w = 1'b1;
     end
 
     always_ff @(posedge clk_i)
         if (rst_i) begin
-            ball_x_o          <= `X_POS_W' (`SCREEN_H_RES / 2);
-            ball_y_o          <= `Y_POS_W' (`SCREEN_V_RES / 2);
-        end else if (new_frame_i) begin
-            ball_x_o          <= ball_x_w;
-            ball_y_o          <= ball_y_w;
+            ball_x_o     <= `X_POS_W' (`SCREEN_H_RES / 2);
+        end else if (update_ball_x) begin
+            ball_x_o     <= ball_x_w;
         end
 
     always_ff @(posedge clk_i)
         if (rst_i) begin
-            ball_speed_x <= `BALL_SPEED_W'd1;
-            ball_speed_y <= `BALL_SPEED_W'd1;
-        end else if (new_frame_i) begin
-            ball_speed_x <= ball_speed_x_d;
-            ball_speed_y <= ball_speed_y_d;
+            ball_y_o     <= `Y_POS_W' (`SCREEN_V_RES / 2);
+        end else if (update_ball_y) begin
+            ball_y_o     <= ball_y_w;
+        end
+
+    always_ff @(posedge clk_i)
+        if (rst_i) begin
+            ball_dir_x   <= 1'b1;
+            ball_speed_x <= `BALL_SPEED_W'd30;
+
+            ball_dir_y   <= 1'b1;
+            ball_speed_y <= `BALL_SPEED_W'd30;
+        end else begin
+            ball_dir_x   <= ball_dir_x_w;
+            ball_speed_x <= ball_speed_x_w;
+
+            ball_dir_y   <= ball_dir_y_w;
+            ball_speed_y <= ball_speed_y_w;
         end
 
 endmodule
