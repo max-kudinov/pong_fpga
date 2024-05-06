@@ -202,7 +202,6 @@ module game_logic (
     always_comb begin
         // Calculate new computer paddle coordinates
         pc_paddle_y_w = pc_paddle_y_o;
-        pc_paddle_center = pc_paddle_y_o + PADDLE_CENTER;
 
         if ((pc_paddle_center > ball_y_o) && (pc_paddle_y_o > `SCREEN_BORDER))
             pc_paddle_y_w = pc_paddle_y_o - 1'b1;
@@ -210,6 +209,12 @@ module game_logic (
         if ((pc_paddle_center < ball_y_o) && (pc_paddle_y_o < DOWN_LIMIT))
             pc_paddle_y_w = pc_paddle_y_o + 1'b1;
     end
+
+    always_ff @(posedge clk_i)
+        if (rst_i)
+            pc_paddle_center <= '0;
+        else
+            pc_paddle_center <= pc_paddle_y_o + PADDLE_CENTER;
 
     always_ff @(posedge clk_i)
         if (rst_i) 

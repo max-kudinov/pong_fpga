@@ -56,12 +56,14 @@ module game_display (
         .RECT_W    ( `PADDLE_WIDTH  ),
         .RECT_H    ( `PADDLE_HEIGHT )
     ) i_player (
-        .rect_x    ( player_paddle_x   ),
-        .rect_y    ( player_paddle_y   ),
-        .pixel_x   ( vga_x_pos         ),
-        .pixel_y   ( vga_y_pos         ),
-        .on_sprite ( on_player_paddle  ),
-        .vga_rgb_o ( player_paddle_rgb )
+        .clk_i       ( clk_i             ),
+        .rst_i       ( rst_i             ),
+        .rect_x      ( player_paddle_x   ),
+        .rect_y      ( player_paddle_y   ),
+        .pixel_x     ( vga_x_pos         ),
+        .pixel_y     ( vga_y_pos         ),
+        .on_sprite_o ( on_player_paddle  ),
+        .vga_rgb_o   ( player_paddle_rgb )
     );
 
     // Display computer paddle
@@ -69,12 +71,14 @@ module game_display (
         .RECT_W    ( `PADDLE_WIDTH  ),
         .RECT_H    ( `PADDLE_HEIGHT )
     ) i_computer (
-        .rect_x    ( pc_paddle_x   ),
-        .rect_y    ( pc_paddle_y   ),
-        .pixel_x   ( vga_x_pos     ),
-        .pixel_y   ( vga_y_pos     ),
-        .on_sprite ( on_pc_paddle  ),
-        .vga_rgb_o ( pc_paddle_rgb )
+        .clk_i       ( clk_i         ),
+        .rst_i       ( rst_i         ),
+        .rect_x      ( pc_paddle_x   ),
+        .rect_y      ( pc_paddle_y   ),
+        .pixel_x     ( vga_x_pos     ),
+        .pixel_y     ( vga_y_pos     ),
+        .on_sprite_o ( on_pc_paddle  ),
+        .vga_rgb_o   ( pc_paddle_rgb )
     );
 
     // Display ball
@@ -82,12 +86,14 @@ module game_display (
         .RECT_W    ( `BALL_SIDE ),
         .RECT_H    ( `BALL_SIDE )
     ) i_ball (
-        .rect_x    ( ball_x      ),
-        .rect_y    ( ball_y      ),
-        .pixel_x   ( vga_x_pos   ),
-        .pixel_y   ( vga_y_pos   ),
-        .on_sprite ( on_ball     ),
-        .vga_rgb_o ( ball_rgb    )
+        .clk_i       ( clk_i       ),
+        .rst_i       ( rst_i       ),
+        .rect_x      ( ball_x      ),
+        .rect_y      ( ball_y      ),
+        .pixel_x     ( vga_x_pos   ),
+        .pixel_y     ( vga_y_pos   ),
+        .on_sprite_o ( on_ball     ),
+        .vga_rgb_o   ( ball_rgb    )
     );
 
     // Output colors based on coordinates
