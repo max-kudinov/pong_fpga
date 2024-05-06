@@ -16,11 +16,11 @@ module strobe_gen #(
     always_ff @(posedge clk_i)
         if (rst_i)
             cnt <= '0;
-        else if (cnt == CNT_MAX)
+        else if (strobe)
             cnt <= '0;
         else
-            cnt <= cnt + 1'b1;
+            cnt <= cnt + CNT_W'(1);
 
-    assign strobe = cnt == CNT_MAX;
+    assign strobe = cnt == CNT_W' (CNT_MAX);
 
 endmodule

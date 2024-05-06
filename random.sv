@@ -1,8 +1,7 @@
 `include "config.svh"
 
 module random #(
-    // parameter [`RND_NUM_W-1:0] TAPS = `RND_NUM_W'(5) << (`RND_NUM_W - 3)
-    parameter [`RND_NUM_W-1:0] TAPS = `RND_NUM_W'('hD008)
+    parameter [`RND_NUM_W-1:0] TAPS = `RND_NUM_W'(5) << (`RND_NUM_W - 3)
 ) (
     input  logic                    clk_i,
     input  logic                    rst_i,
