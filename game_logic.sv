@@ -276,8 +276,8 @@ module game_logic (
             ball_dir_x_w   =    rnd_num[`RND_NUM_W - 1];
             ball_dir_y_w   =    rnd_num[0];
 
-            ball_speed_x_w = {3'b011, rnd_num[3]};
-            ball_speed_y_w = {2'b01, rnd_num[8], 1'b0};
+            ball_speed_x_w = {2'b01, rnd_num[3:2]};
+            ball_speed_y_w = {3'b000, rnd_num[8]};
         end
 
         if (ball_y_o < `SCREEN_BORDER)
