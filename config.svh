@@ -38,7 +38,7 @@
 `define X_POS_W $clog2(`H_TOTAL)
 `define Y_POS_W $clog2(`V_TOTAL)
 
-`define RND_NUM_W 20
+`define RND_NUM_W 16
 `define RND_SEED 42069
 
 `define PADDLE_WIDTH 10
@@ -49,9 +49,9 @@
 `define BALL_BASE_SPEED 60
 
 `define BALL_SIDE 10
-`define BALL_SPEED_W 10 
+`define BALL_SPEED_W 4 
 
-`define SCREEN_BORDER 5
+`define SCREEN_BORDER 10 
 `define SEPARATOR_WIDTH 6
 `define SEPARATOR_DOT_HEIGHT 18
 

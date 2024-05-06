@@ -1,6 +1,6 @@
 `include "config.svh"
 
-module static_strobe_gen #(
+module strobe_gen #(
     parameter STROBE_FREQ_HZ = 1
 ) (
     input  logic clk_i,

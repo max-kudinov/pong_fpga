@@ -15,7 +15,8 @@ module game_display (
 
     output logic                    vga_hs_o,
     output logic                    vga_vs_o,
-    output logic [`VGA_RGB_W - 1:0] vga_rgb_o
+    output logic [`VGA_RGB_W - 1:0] vga_rgb_o,
+    output logic                    new_frame_o
 );
     logic [`X_POS_W - 1:0]   player_paddle_x;
     logic [`Y_POS_W - 1:0]   player_paddle_y;
@@ -35,7 +36,6 @@ module game_display (
     logic [`Y_POS_W - 1:0]   vga_y_pos;
     logic                    vga_visible_range;
     logic                    vga_vs_prev;
-    logic                    new_frame;
 
     logic                    on_player_paddle;
     logic                    on_pc_paddle;
@@ -122,7 +122,11 @@ module game_display (
         else
             vga_vs_prev <= vga_vs_o;
 
-    assign new_frame = vga_vs_prev && ~vga_vs_o;
+    always_ff @(posedge clk_i)
+        if (rst_i)
+            new_frame_o <= '0;
+        else
+            new_frame_o <= vga_vs_prev && ~vga_vs_o;
 
     always_ff @(posedge clk_i)
         if (rst_i) begin
@@ -134,7 +138,7 @@ module game_display (
 
             ball_x          <= '0;
             ball_y          <= '0;
-        end else if (new_frame) begin
+        end else if (new_frame_o) begin
             player_paddle_x <= player_paddle_x_i;
             player_paddle_y <= player_paddle_y_i;
 

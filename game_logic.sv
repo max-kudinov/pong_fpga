@@ -5,6 +5,8 @@ module game_logic (
     input  logic                  rst_i,
     input  logic [`KEYS_W - 1:0]  keys_i,
 
+    input  logic                  new_frame_i,
+
     output logic [`X_POS_W - 1:0] player_paddle_x_o,
     output logic [`Y_POS_W - 1:0] player_paddle_y_o,
 
@@ -15,12 +17,14 @@ module game_logic (
     output logic [`Y_POS_W - 1:0] ball_y_o
 
 );
+    initial begin
+        player_paddle_y_o = `SCREEN_V_RES / 2;
+    end
+
     localparam [`Y_POS_W - 1:0] DOWN_LIMIT    = `SCREEN_V_RES - (`SCREEN_BORDER + `PADDLE_HEIGHT);
     localparam [`Y_POS_W - 1:0] PADDLE_CENTER = `PADDLE_HEIGHT / 2;
 
     logic                   update_pc;
-    logic                   update_ball_x;
-    logic                   update_ball_y;
     logic                   update_player;
 
     logic [`Y_POS_W - 1:0]  player_paddle_y_w;
@@ -51,6 +55,10 @@ module game_logic (
 
     logic                    collision_player;
     logic                    collision_pc;
+    logic                    collision_player_tip_top;
+    logic                    collision_player_tip_bottom;
+    logic                    collision_pc_tip_top;
+    logic                    collision_pc_tip_bottom;
 
     logic [`X_POS_W - 1:0]   player_paddle_right;
     logic [`Y_POS_W - 1:0]   player_paddle_bottom;
@@ -70,36 +78,19 @@ module game_logic (
     assign ball_right           =  ball_x_o + `BALL_SIDE;
     assign ball_bottom          =  ball_y_o + `BALL_SIDE;
 
-    static_strobe_gen #(.STROBE_FREQ_HZ(`PC_SPEED)) i_pc_strobe_gen
+    strobe_gen #(.STROBE_FREQ_HZ(`PC_SPEED)) i_pc_strobe_gen
     (
         .clk_i  ( clk_i  ),
         .rst_i  ( rst_i  ),
         .strobe ( update_pc )
     );
 
-    static_strobe_gen #(.STROBE_FREQ_HZ(`PLAYER_SPEED)) i_player_strobe_gen
+    strobe_gen #(.STROBE_FREQ_HZ(`PLAYER_SPEED)) i_player_strobe_gen
     (
         .clk_i  ( clk_i         ),
         .rst_i  ( rst_i         ),
         .strobe ( update_player )
     );
-
-    dynamic_strobe_gen #(.FREQ_W (`BALL_SPEED_W)) i_ball_speed_x_gen
-    (
-        .clk_i       ( clk_i         ),
-        .rst_i       ( rst_i         ),
-        .strobe_freq ( ball_speed_x  ),
-        .strobe_o    ( update_ball_x )
-    );
-
-    dynamic_strobe_gen #(.FREQ_W (`BALL_SPEED_W)) i_ball_speed_y_gen
-    (
-        .clk_i       ( clk_i         ),
-        .rst_i       ( rst_i         ),
-        .strobe_freq ( ball_speed_y  ),
-        .strobe_o    ( update_ball_y )
-    );
-
 
     random i_random (
         .clk_i     ( clk_i   ),
@@ -119,6 +110,62 @@ module game_logic (
         .rect2_top    ( ball_y_o             ),
         .rect2_bottom ( ball_bottom          ),
         .collision    ( collision_player     )
+    );
+
+    sprite_collision i_player_collision_tip_top (
+        .clk_i        ( clk_i                ),
+        .rst_i        ( rst_i                ),
+        .rect1_left   ( player_paddle_x_o    ),
+        .rect1_right  ( player_paddle_right  ),
+        .rect1_top    ( player_paddle_y_o    ),
+        .rect1_bottom ( player_paddle_y_o + 1'b1 ),
+        .rect2_left   ( ball_x_o             ),
+        .rect2_right  ( ball_right           ),
+        .rect2_top    ( ball_y_o             ),
+        .rect2_bottom ( ball_bottom          ),
+        .collision    ( collision_player_tip_top     )
+    );
+
+    sprite_collision i_player_collision_tip_bottom (
+        .clk_i        ( clk_i                ),
+        .rst_i        ( rst_i                ),
+        .rect1_left   ( player_paddle_x_o    ),
+        .rect1_right  ( player_paddle_right  ),
+        .rect1_top    ( player_paddle_bottom - 1'b1   ),
+        .rect1_bottom ( player_paddle_bottom ),
+        .rect2_left   ( ball_x_o             ),
+        .rect2_right  ( ball_right           ),
+        .rect2_top    ( ball_y_o             ),
+        .rect2_bottom ( ball_bottom          ),
+        .collision    ( collision_player_tip_bottom     )
+    );
+
+    sprite_collision i_pc_collision_tip_top (
+        .clk_i        ( clk_i            ),
+        .rst_i        ( rst_i            ),
+        .rect1_left   ( pc_paddle_x_o    ),
+        .rect1_right  ( pc_paddle_right  ),
+        .rect1_top    ( pc_paddle_y_o    ),
+        .rect1_bottom ( pc_paddle_y_o + 1'b1),
+        .rect2_left   ( ball_x_o         ),
+        .rect2_right  ( ball_right       ),
+        .rect2_top    ( ball_y_o         ),
+        .rect2_bottom ( ball_bottom      ),
+        .collision    ( collision_pc_tip_top     )
+    );
+
+    sprite_collision i_pc_collision_tip_bottom (
+        .clk_i        ( clk_i            ),
+        .rst_i        ( rst_i            ),
+        .rect1_left   ( pc_paddle_x_o    ),
+        .rect1_right  ( pc_paddle_right  ),
+        .rect1_top    ( pc_paddle_bottom - 1'b1   ),
+        .rect1_bottom ( pc_paddle_bottom ),
+        .rect2_left   ( ball_x_o         ),
+        .rect2_right  ( ball_right       ),
+        .rect2_top    ( ball_y_o         ),
+        .rect2_bottom ( ball_bottom      ),
+        .collision    ( collision_pc_tip_bottom     )
     );
 
     sprite_collision i_pc_collision (
@@ -195,19 +242,31 @@ module game_logic (
         ball_speed_x_w = ball_speed_x;
         ball_speed_y_w = ball_speed_y;
 
-        ball_x_w = ball_dir_x ? ball_x_o - 1'b1 : ball_x_o + 1'b1;
-        ball_y_w = ball_dir_y ? ball_y_o - 1'b1 : ball_y_o + 1'b1;
+        ball_x_w = ball_dir_x ? ball_x_o - ball_speed_x_w : ball_x_o + ball_speed_x_w;
+        ball_y_w = ball_dir_y ? ball_y_o - ball_speed_y_w : ball_y_o + ball_speed_y_w;
 
         if (collision_player) begin
             ball_dir_x_w = 1'b1;
-            ball_speed_x_w = rnd_num[7:0];
-            ball_speed_y_w = rnd_num[14:8];
+            ball_speed_x_w = {3'b100, rnd_num[1]};
+            ball_speed_y_w = {2'b00, rnd_num[10], 1'b1};
         end
 
         if (collision_pc) begin
             ball_dir_x_w = 1'b0;
-            ball_speed_x_w = rnd_num[7:0];
-            ball_speed_y_w = rnd_num[14:8];
+            ball_speed_x_w = {3'b100, rnd_num[2]};
+            ball_speed_y_w = {2'b00, rnd_num[6], 1'b1};
+        end
+
+        if (collision_player_tip_top || collision_pc_tip_top) begin
+            // ball_speed_y_w = {2'b10, rnd_num[8], 1'b0};
+            ball_speed_y_w = 4'b0101; 
+            ball_dir_y_w = 1'b1;
+        end
+
+        if (collision_player_tip_bottom || collision_pc_tip_bottom) begin
+            // ball_speed_y_w = {2'b10, rnd_num[8], 1'b0};
+            ball_speed_y_w = 4'b0101; 
+            ball_dir_y_w = 1'b0;
         end
 
         if ((ball_x_o > `SCREEN_H_RES) || (ball_x_o < 1)) begin
@@ -217,8 +276,8 @@ module game_logic (
             ball_dir_x_w   =    rnd_num[`RND_NUM_W - 1];
             ball_dir_y_w   =    rnd_num[0];
 
-            ball_speed_x_w = rnd_num[7:0];
-            ball_speed_y_w = rnd_num[14:8];
+            ball_speed_x_w = {3'b011, rnd_num[3]};
+            ball_speed_y_w = {2'b01, rnd_num[8], 1'b0};
         end
 
         if (ball_y_o < `SCREEN_BORDER)
@@ -230,24 +289,24 @@ module game_logic (
     always_ff @(posedge clk_i)
         if (rst_i) begin
             ball_x_o     <= `X_POS_W' (`SCREEN_H_RES / 2);
-        end else if (update_ball_x) begin
+        end else if (new_frame_i) begin
             ball_x_o     <= ball_x_w;
         end
 
     always_ff @(posedge clk_i)
         if (rst_i) begin
             ball_y_o     <= `Y_POS_W' (`SCREEN_V_RES / 2);
-        end else if (update_ball_y) begin
+        end else if (new_frame_i) begin
             ball_y_o     <= ball_y_w;
         end
 
     always_ff @(posedge clk_i)
         if (rst_i) begin
             ball_dir_x   <= 1'b1;
-            ball_speed_x <= `BALL_SPEED_W'd30;
+            ball_speed_x <= `BALL_SPEED_W'd2;
 
             ball_dir_y   <= 1'b1;
-            ball_speed_y <= `BALL_SPEED_W'd30;
+            ball_speed_y <= `BALL_SPEED_W'd2;
         end else begin
             ball_dir_x   <= ball_dir_x_w;
             ball_speed_x <= ball_speed_x_w;
