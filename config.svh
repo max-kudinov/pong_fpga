@@ -44,7 +44,7 @@
 `define PADDLE_WIDTH 10
 `define PADDLE_HEIGHT 50
 
-`define PLAYER_SPEED 700
+`define PLAYER_SPEED 300
 `define PC_SPEED 250
 `define BALL_BASE_SPEED 60
 
@@ -54,5 +54,12 @@
 `define SCREEN_BORDER 10 
 `define SEPARATOR_WIDTH 6
 `define SEPARATOR_DOT_HEIGHT 18
+
+typedef struct packed {
+    logic [`X_POS_W - 1:0] x_pos;
+    logic [`Y_POS_W - 1:0] y_pos;
+    logic [`X_POS_W - 1:0] right;
+    logic [`Y_POS_W - 1:0] bottom;
+} sprite_t;
 
 `endif

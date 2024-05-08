@@ -31,10 +31,10 @@ module game_top (
         .rst_i             ( rst_i           ),
         .keys_i            ( keys_i          ),
         .new_frame_i       ( new_frame       ),
-        .player_paddle_x_o ( player_paddle_x ),
-        .player_paddle_y_o ( player_paddle_y ),
-        .pc_paddle_x_o     ( pc_paddle_x     ),
-        .pc_paddle_y_o     ( pc_paddle_y     ),
+        .player_x_o        ( player_paddle_x ),
+        .player_y_o        ( player_paddle_y ),
+        .enemy_x_o         ( pc_paddle_x     ),
+        .enemy_y_o         ( pc_paddle_y     ),
         .ball_x_o          ( ball_x          ),
         .ball_y_o          ( ball_y          )
     );
