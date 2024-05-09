@@ -39,13 +39,14 @@
 `define Y_POS_W $clog2(`V_TOTAL)
 
 `define RND_NUM_W 9
-`define RND_SEED 42069
+`define RND_SEED 1337
+`define TAPS 'h110
 
 `define PADDLE_WIDTH 10
 `define PADDLE_HEIGHT 50
 
-`define PLAYER_SPEED 300
-`define PC_SPEED 250
+`define PLAYER_SPEED 700
+`define ENEMY_SPEED 250
 `define BALL_BASE_SPEED 60
 
 `define BALL_SIDE 10
@@ -56,10 +57,15 @@
 `define SEPARATOR_DOT_HEIGHT 18
 
 typedef struct packed {
-    logic [`X_POS_W - 1:0] x_pos;
-    logic [`Y_POS_W - 1:0] y_pos;
-    logic [`X_POS_W - 1:0] right;
-    logic [`Y_POS_W - 1:0] bottom;
+    logic [`X_POS_W-1:0] x_pos;
+    logic [`Y_POS_W-1:0] y_pos;
+    logic [`X_POS_W-1:0] right;
+    logic [`Y_POS_W-1:0] bottom;
 } sprite_t;
+
+parameter [`Y_POS_W-1:0] DOWN_LIMIT    = `SCREEN_V_RES - (`SCREEN_BORDER + `PADDLE_HEIGHT);
+parameter [`Y_POS_W-1:0] PADDLE_CENTER = `PADDLE_HEIGHT / 2;
+
+parameter v_center = `Y_POS_W' (`SCREEN_V_RES / 2 - 32'(PADDLE_CENTER));
 
 `endif
