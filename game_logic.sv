@@ -33,7 +33,7 @@ module game_logic (
         player_r = player_center;
     end
 
-    logic                   update_pc;
+    logic                   update_enemy;
     logic                   update_player;
 
     logic [`Y_POS_W - 1:0]  enemy_center;
@@ -49,18 +49,11 @@ module game_logic (
     logic                    key_up;
     logic                    key_down;
 
-    logic                    player_col_side;
-    logic                    enemy_col_side;
-    logic                    player_col_top;
-    logic                    player_col_bottom;
-    logic                    enemy_col_top;
-    logic                    enemy_col_bottom;
-
     strobe_gen #(.STROBE_FREQ_HZ(`PC_SPEED)) i_pc_strobe_gen
     (
         .clk_i  ( clk_i  ),
         .rst_i  ( rst_i  ),
-        .strobe ( update_pc )
+        .strobe ( update_enemy )
     );
 
     strobe_gen #(.STROBE_FREQ_HZ(`PLAYER_SPEED)) i_player_strobe_gen
@@ -77,89 +70,54 @@ module game_logic (
         .rnd_num_o ( rnd_num )
     );
 
-    sprite_collision i_player_collision_side (
-        .clk_i        ( clk_i                ),
-        .rst_i        ( rst_i                ),
-        .rect1_left   ( player_r.x_pos    ),
-        .rect1_right  ( player_r.right  ),
-        .rect1_top    ( player_r.y_pos    ),
-        .rect1_bottom ( player_r.bottom ),
-        .rect2_left   ( ball_r.x_pos             ),
-        .rect2_right  ( ball_r.right           ),
-        .rect2_top    ( ball_r.y_pos             ),
-        .rect2_bottom ( ball_r.bottom          ),
-        .collision    ( player_col_side     )
-    );
+    logic [`X_POS_W-1:0] player_tops    [3];
+    logic [`X_POS_W-1:0] enemy_tops     [3];
+    logic [`X_POS_W-1:0] player_bottoms [3];
+    logic [`X_POS_W-1:0] enemy_bottoms  [3];
 
-    sprite_collision i_player_collisio_top (
-        .clk_i        ( clk_i                ),
-        .rst_i        ( rst_i                ),
-        .rect1_left   ( player_r.x_pos    ),
-        .rect1_right  ( player_r.right  ),
-        .rect1_top    ( player_r.y_pos    ),
-        .rect1_bottom ( player_r.y_pos + 1'b1 ),
-        .rect2_left   ( ball_r.x_pos             ),
-        .rect2_right  ( ball_r.right           ),
-        .rect2_top    ( ball_r.y_pos             ),
-        .rect2_bottom ( ball_r.bottom          ),
-        .collision    ( player_col_top     )
-    );
+    logic [2:0] player_colls;
+    logic [2:0] enemy_colls;
 
-    sprite_collision i_player_collision_bottom (
-        .clk_i        ( clk_i                ),
-        .rst_i        ( rst_i                ),
-        .rect1_left   ( player_r.x_pos    ),
-        .rect1_right  ( player_r.right  ),
-        .rect1_top    ( player_r.bottom - 1'b1   ),
-        .rect1_bottom ( player_r.bottom ),
-        .rect2_left   ( ball_r.x_pos             ),
-        .rect2_right  ( ball_r.right           ),
-        .rect2_top    ( ball_r.y_pos             ),
-        .rect2_bottom ( ball_r.bottom          ),
-        .collision    ( player_col_bottom     )
-    );
+    // ' symbol is needed to cast packed array to unpacked
+    assign player_tops    = '{ player_r.y_pos, player_r.y_pos, player_w.bottom - 1'b1 };
+    assign player_bottoms = '{ player_w.bottom, player_r.y_pos + 1'b1, player_w.bottom };
+    assign enemy_tops     = '{ enemy_r.y_pos, enemy_r.y_pos, enemy_w.bottom - 1'b1 };
+    assign enemy_bottoms  = '{ enemy_w.bottom, enemy_r.y_pos + 1'b1, enemy_w.bottom };
 
-    sprite_collision i_enemy_collision_side (
-        .clk_i        ( clk_i            ),
-        .rst_i        ( rst_i            ),
-        .rect1_left   ( enemy_r.x_pos    ),
-        .rect1_right  ( enemy_r.right  ),
-        .rect1_top    ( enemy_r.y_pos    ),
-        .rect1_bottom ( enemy_r.bottom ),
-        .rect2_left   ( ball_r.x_pos         ),
-        .rect2_right  ( ball_r.right       ),
-        .rect2_top    ( ball_r.y_pos         ),
-        .rect2_bottom ( ball_r.bottom      ),
-        .collision    ( enemy_col_side     )
-    );
+    genvar i;
+    generate
+        for (i = 0; i < 3; i++) begin : collision_player
+            sprite_collision i_player_collision (
+                .clk_i          ( clk_i              ),
+                .rst_i          ( rst_i              ),
+                .rect1_left_i   ( player_r.x_pos     ),
+                .rect1_right_i  ( player_w.right     ),
+                .rect1_top_i    ( player_tops    [i] ),
+                .rect1_bottom_i ( player_bottoms [i] ),
+                .rect2_left_i   ( ball_r.x_pos       ),
+                .rect2_right_i  ( ball_w.right       ),
+                .rect2_top_i    ( ball_r.y_pos       ),
+                .rect2_bottom_i ( ball_w.bottom      ),
+                .collision_o    ( player_colls   [i] )
+            );
+        end
 
-    sprite_collision i_enemy_collision_top (
-        .clk_i        ( clk_i            ),
-        .rst_i        ( rst_i            ),
-        .rect1_left   ( enemy_r.x_pos    ),
-        .rect1_right  ( enemy_r.right  ),
-        .rect1_top    ( enemy_r.y_pos    ),
-        .rect1_bottom ( enemy_r.y_pos + 1'b1),
-        .rect2_left   ( ball_r.x_pos         ),
-        .rect2_right  ( ball_r.right       ),
-        .rect2_top    ( ball_r.y_pos         ),
-        .rect2_bottom ( ball_r.bottom      ),
-        .collision    ( enemy_col_top     )
-    );
-
-    sprite_collision i_enemy_collision_bottom (
-        .clk_i        ( clk_i            ),
-        .rst_i        ( rst_i            ),
-        .rect1_left   ( enemy_r.x_pos    ),
-        .rect1_right  ( enemy_r.right  ),
-        .rect1_top    ( enemy_r.bottom - 1'b1   ),
-        .rect1_bottom ( enemy_r.bottom ),
-        .rect2_left   ( ball_r.x_pos         ),
-        .rect2_right  ( ball_r.right       ),
-        .rect2_top    ( ball_r.y_pos         ),
-        .rect2_bottom ( ball_r.bottom      ),
-        .collision    ( enemy_col_bottom     )
-    );
+        for (i = 0; i < 3; i++) begin : collision_enemy
+            sprite_collision i_enemy_collision (
+                .clk_i          ( clk_i             ),
+                .rst_i          ( rst_i             ),
+                .rect1_left_i   ( enemy_r.x_pos     ),
+                .rect1_right_i  ( enemy_w.right     ),
+                .rect1_top_i    ( enemy_tops    [i] ),
+                .rect1_bottom_i ( enemy_bottoms [i] ),
+                .rect2_left_i   ( ball_r.x_pos      ),
+                .rect2_right_i  ( ball_w.right      ),
+                .rect2_top_i    ( ball_r.y_pos      ),
+                .rect2_bottom_i ( ball_w.bottom     ),
+                .collision_o    ( enemy_colls   [i] )
+            );
+        end
+    endgenerate
 
     assign key_up   = keys_i[0];
     assign key_down = keys_i[1];
@@ -208,7 +166,7 @@ module game_logic (
         else
             ball_w.y_pos = ball_r.y_pos + `Y_POS_W' (ball_speed_y[3:0]);
 
-        if ((ball_r.x_pos > `SCREEN_H_RES) || (ball_r.x_pos < 1)) begin
+        if ((ball_r.x_pos > `SCREEN_H_RES) || (ball_r.x_pos < `SCREEN_BORDER)) begin
             ball_w.x_pos = `SCREEN_H_RES / 2;
             ball_w.y_pos = `SCREEN_V_RES / 2;
         end
@@ -219,25 +177,25 @@ module game_logic (
         ball_speed_x_w = ball_speed_x;
         ball_speed_y_w = ball_speed_y;
 
-        if (player_col_side) begin
+        if (player_colls[0]) begin
             ball_speed_x_w = {4'b1100, rnd_num[0]};
             ball_speed_y_w[3:0] = {2'b00, rnd_num[1], 1'b1};
         end
 
-        if (enemy_col_side) begin
+        if (enemy_colls[0]) begin
             ball_speed_x_w = {4'b0100, rnd_num[2]};
             ball_speed_y_w[3:0] = {2'b00, rnd_num[3], 1'b1};
         end
 
-        if (key_up && (player_col_top || enemy_col_top)) begin
+        if ((key_up && player_colls[1]) || enemy_colls[1]) begin
             ball_speed_y_w = 5'b10101; 
         end
 
-        if (key_down && (player_col_bottom || enemy_col_bottom)) begin
+        if ((key_down && player_colls[2]) || enemy_colls[2]) begin
             ball_speed_y_w = 5'b00101; 
         end
 
-        if ((ball_r.x_pos > `SCREEN_H_RES) || (ball_r.x_pos < 1)) begin
+        if ((ball_r.x_pos > `SCREEN_H_RES) || (ball_r.x_pos < `SCREEN_BORDER)) begin
             ball_speed_x_w = { rnd_num[4], 2'b01, rnd_num[7:6] };
             ball_speed_y_w = { rnd_num[5], 3'b000, rnd_num[8]  };
         end
@@ -267,7 +225,7 @@ module game_logic (
             if (update_player)
                 player_r <= player_w;
 
-            if (update_pc)
+            if (update_enemy)
                 enemy_r  <= enemy_w;
 
             if (new_frame_i)

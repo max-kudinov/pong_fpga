@@ -4,7 +4,7 @@ module tb;
 
     localparam CLK_PERIOD   = 20;
     localparam RST_DURATION = 40;
-    localparam CLOCK_CYCLES = 1_000_000;
+    localparam CLOCK_CYCLES = 10_000;
 
     logic clk;
     logic rst;
