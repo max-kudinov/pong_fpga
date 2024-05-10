@@ -1,4 +1,8 @@
-module board_top (
+`include "board_pkg.svh"
+
+module board_top
+    import board_pkg::*;
+(
     input  logic                    clk_i,
     input  logic                    rst_n_i,
     input  logic [KEYS_W-1:0]       keys_i,

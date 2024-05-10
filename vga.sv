@@ -1,4 +1,8 @@
-module vga (
+`include "vga_pkg.svh"
+
+module vga
+    import vga_pkg::*;
+(
     input  logic               clk_i,
     input  logic               rst_i,
     output logic               hsync_o,

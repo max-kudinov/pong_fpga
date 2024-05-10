@@ -1,4 +1,5 @@
 module strobe_gen #(
+    parameter BOARD_CLK_MHZ = 50,
     parameter STROBE_FREQ_HZ = 1
 ) (
     input  logic clk_i,

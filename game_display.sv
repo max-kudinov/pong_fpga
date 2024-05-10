@@ -1,4 +1,18 @@
-module game_display (
+`include "board_pkg.svh"
+`include "vga_pkg.svh"
+`include "sprite_pkg.svh"
+
+module game_display
+    import board_pkg::VGA_RGB_W;
+    import vga_pkg::X_POS_W;
+    import vga_pkg::Y_POS_W;
+    import vga_pkg::SCREEN_H_RES;
+    import sprite_pkg::PADDLE_WIDTH;
+    import sprite_pkg::PADDLE_HEIGHT;
+    import sprite_pkg::BALL_SIDE;
+    import sprite_pkg::SEPARATOR_WIDTH;
+    import sprite_pkg::SEPARATOR_DOT_HEIGHT;
+(
     input  logic                    clk_i,
     input  logic                    rst_i,
 
@@ -13,7 +27,7 @@ module game_display (
 
     output logic                    vga_hs_o,
     output logic                    vga_vs_o,
-    output logic [VGA_RGB_W - 1:0] vga_rgb_o,
+    output logic [VGA_RGB_W - 1:0]  vga_rgb_o,
     output logic                    new_frame_o
 );
     logic [X_POS_W - 1:0]   player_paddle_x;

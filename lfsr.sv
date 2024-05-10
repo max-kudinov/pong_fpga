@@ -1,9 +1,11 @@
-module random #(
-    parameter [RND_NUM_W-1:0] TAPS = RND_NUM_W'(5) << (RND_NUM_W - 3)
-) (
+`include "lfsr_pkg.svh"
+
+module lfsr
+    import lfsr_pkg::*;
+(
     input  logic                    clk_i,
     input  logic                    rst_i,
-    output logic [RND_NUM_W-1:0]   rnd_num_o
+    output logic [RND_NUM_W-1:0]    rnd_num_o
 );
 
     initial begin

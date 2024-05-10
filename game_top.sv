@@ -1,4 +1,11 @@
-module game_top (
+`include "board_pkg.svh"
+`include "vga_pkg.svh"
+
+module game_top
+    import board_pkg::*;
+    import vga_pkg::X_POS_W;
+    import vga_pkg::Y_POS_W;
+(
     input  logic                    clk_i,
     input  logic                    rst_i,
     input  logic [KEYS_W-1:0]       keys_i,

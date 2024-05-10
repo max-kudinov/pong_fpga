@@ -1,5 +1,3 @@
-`timescale 1ns / 100ps
-
 module tb;
 
     localparam CLK_PERIOD   = 20;

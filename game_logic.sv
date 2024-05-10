@@ -1,4 +1,18 @@
-module game_logic (
+`include "board_pkg.svh"
+`include "vga_pkg.svh"
+`include "sprite_pkg.svh"
+`include "lfsr_pkg.svh"
+
+module game_logic
+    import sprite_pkg::*;
+    import board_pkg::KEYS_W;
+    import vga_pkg::X_POS_W;
+    import vga_pkg::Y_POS_W;
+    import vga_pkg::SCREEN_H_RES;
+    import vga_pkg::SCREEN_V_RES;
+    import vga_pkg::BOARD_CLK_MHZ;
+    import lfsr_pkg::RND_NUM_W;
+(
     input  logic                clk_i,
     input  logic                rst_i,
     input  logic [KEYS_W-1:0]  keys_i,
@@ -42,23 +56,25 @@ module game_logic (
 
     logic [RND_NUM_W-1:0]    rnd_num;
 
-
-    strobe_gen #(.STROBE_FREQ_HZ(ENEMY_SPEED)) i_enemy_strobe_gen
-    (
-        .clk_i  ( clk_i  ),
-        .rst_i  ( rst_i  ),
-        .strobe ( update_enemy )
+    strobe_gen #(
+        .BOARD_CLK_MHZ  ( BOARD_CLK_MHZ ),
+        .STROBE_FREQ_HZ ( PLAYER_SPEED   )
+    ) i_player_strobe_gen (
+        .clk_i          ( clk_i         ),
+        .rst_i          ( rst_i         ),
+        .strobe         ( update_player )
     );
 
-    strobe_gen #(.STROBE_FREQ_HZ(PLAYER_SPEED)) i_player_strobe_gen
-    (
-        .clk_i  ( clk_i         ),
-        .rst_i  ( rst_i         ),
-        .strobe ( update_player )
+    strobe_gen #(
+        .BOARD_CLK_MHZ  ( BOARD_CLK_MHZ ),
+        .STROBE_FREQ_HZ ( ENEMY_SPEED   )
+    ) i_enemy_strobe_gen (
+        .clk_i          ( clk_i         ),
+        .rst_i          ( rst_i         ),
+        .strobe         ( update_enemy  )
     );
 
-    random #(.TAPS (TAPS)) i_random
-    (
+    lfsr i_lfsr (
         .clk_i     ( clk_i   ),
         .rst_i     ( rst_i   ),
         .rnd_num_o ( rnd_num )
@@ -114,8 +130,8 @@ module game_logic (
         end
     endgenerate
 
-    assign key_up   = keys_i[1];
-    assign key_down = keys_i[0];
+    assign key_up   = keys_i[0];
+    assign key_down = keys_i[1];
 
     // Calculate new player paddle coordinates
     always_comb begin
