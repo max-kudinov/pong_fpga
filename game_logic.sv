@@ -114,8 +114,8 @@ module game_logic (
         end
     endgenerate
 
-    assign key_up   = keys_i[0];
-    assign key_down = keys_i[1];
+    assign key_up   = keys_i[1];
+    assign key_down = keys_i[0];
 
     // Calculate new player paddle coordinates
     always_comb begin
