@@ -17,9 +17,9 @@ package sprite_pkg;
 
     parameter BALL_SIDE            = 10;
     parameter SPEED_W              = 5;
-    parameter DEFLECT_SPEED_X      = (SPEED_W-2)'(100);
-    parameter DEFLECT_SPEED_Y      = (SPEED_W-1)'(0001);
-    parameter SIDE_HIT_SPEED_Y     = (SPEED_W-1)'(0101);
+    parameter DEFLECT_SPEED_X      = (SPEED_W-2)'('b100);
+    parameter DEFLECT_SPEED_Y      = (SPEED_W-1)'('b0001);
+    parameter SIDE_HIT_SPEED_Y     = (SPEED_W-1)'('b0101);
 
     parameter SCREEN_BORDER        = 10;
     parameter SEPARATOR_WIDTH      = 6;
