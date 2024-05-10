@@ -1,39 +1,37 @@
-`include "config.svh"
-
 module game_display (
     input  logic                    clk_i,
     input  logic                    rst_i,
 
-    input  logic [`X_POS_W - 1:0]   player_paddle_x_i,
-    input  logic [`Y_POS_W - 1:0]   player_paddle_y_i,
+    input  logic [X_POS_W - 1:0]   player_paddle_x_i,
+    input  logic [Y_POS_W - 1:0]   player_paddle_y_i,
 
-    input  logic [`X_POS_W - 1:0]   pc_paddle_x_i,
-    input  logic [`Y_POS_W - 1:0]   pc_paddle_y_i,
+    input  logic [X_POS_W - 1:0]   pc_paddle_x_i,
+    input  logic [Y_POS_W - 1:0]   pc_paddle_y_i,
 
-    input  logic [`X_POS_W - 1:0]   ball_x_i,
-    input  logic [`Y_POS_W - 1:0]   ball_y_i,
+    input  logic [X_POS_W - 1:0]   ball_x_i,
+    input  logic [Y_POS_W - 1:0]   ball_y_i,
 
     output logic                    vga_hs_o,
     output logic                    vga_vs_o,
-    output logic [`VGA_RGB_W - 1:0] vga_rgb_o,
+    output logic [VGA_RGB_W - 1:0] vga_rgb_o,
     output logic                    new_frame_o
 );
-    logic [`X_POS_W - 1:0]   player_paddle_x;
-    logic [`Y_POS_W - 1:0]   player_paddle_y;
+    logic [X_POS_W - 1:0]   player_paddle_x;
+    logic [Y_POS_W - 1:0]   player_paddle_y;
 
-    logic [`X_POS_W - 1:0]   pc_paddle_x;
-    logic [`Y_POS_W - 1:0]   pc_paddle_y;
+    logic [X_POS_W - 1:0]   pc_paddle_x;
+    logic [Y_POS_W - 1:0]   pc_paddle_y;
 
-    logic [`X_POS_W - 1:0]   ball_x;
-    logic [`Y_POS_W - 1:0]   ball_y;
+    logic [X_POS_W - 1:0]   ball_x;
+    logic [Y_POS_W - 1:0]   ball_y;
 
-    logic [`VGA_RGB_W - 1:0] vga_rgb_w;
-    logic [`VGA_RGB_W - 1:0] player_paddle_rgb;
-    logic [`VGA_RGB_W - 1:0] pc_paddle_rgb;
-    logic [`VGA_RGB_W - 1:0] ball_rgb;
+    logic [VGA_RGB_W - 1:0] vga_rgb_w;
+    logic [VGA_RGB_W - 1:0] player_paddle_rgb;
+    logic [VGA_RGB_W - 1:0] pc_paddle_rgb;
+    logic [VGA_RGB_W - 1:0] ball_rgb;
 
-    logic [`X_POS_W - 1:0]   vga_x_pos;
-    logic [`Y_POS_W - 1:0]   vga_y_pos;
+    logic [X_POS_W - 1:0]   vga_x_pos;
+    logic [Y_POS_W - 1:0]   vga_y_pos;
     logic                    vga_visible_range;
     logic                    vga_vs_prev;
 
@@ -53,8 +51,8 @@ module game_display (
 
     // Display player paddle
     sprite_display #(
-        .RECT_W    ( `PADDLE_WIDTH  ),
-        .RECT_H    ( `PADDLE_HEIGHT )
+        .RECT_W    ( PADDLE_WIDTH  ),
+        .RECT_H    ( PADDLE_HEIGHT )
     ) i_player (
         .clk_i       ( clk_i             ),
         .rst_i       ( rst_i             ),
@@ -68,8 +66,8 @@ module game_display (
 
     // Display computer paddle
     sprite_display #(
-        .RECT_W    ( `PADDLE_WIDTH  ),
-        .RECT_H    ( `PADDLE_HEIGHT )
+        .RECT_W    ( PADDLE_WIDTH  ),
+        .RECT_H    ( PADDLE_HEIGHT )
     ) i_computer (
         .clk_i       ( clk_i         ),
         .rst_i       ( rst_i         ),
@@ -83,8 +81,8 @@ module game_display (
 
     // Display ball
     sprite_display #(
-        .RECT_W    ( `BALL_SIDE ),
-        .RECT_H    ( `BALL_SIDE )
+        .RECT_W    ( BALL_SIDE ),
+        .RECT_H    ( BALL_SIDE )
     ) i_ball (
         .clk_i       ( clk_i       ),
         .rst_i       ( rst_i       ),
@@ -109,9 +107,9 @@ module game_display (
             endcase
 
             // Display static separator
-            if (vga_x_pos > `SCREEN_H_RES / 2 - `SEPARATOR_WIDTH / 2 &&
-                vga_x_pos < `SCREEN_H_RES / 2 + `SEPARATOR_WIDTH / 2 &&
-               (vga_y_pos + 9 & 31) < `SEPARATOR_DOT_HEIGHT)
+            if (vga_x_pos > SCREEN_H_RES / 2 - SEPARATOR_WIDTH / 2 &&
+                vga_x_pos < SCREEN_H_RES / 2 + SEPARATOR_WIDTH / 2 &&
+               (vga_y_pos + 9 & 31) < SEPARATOR_DOT_HEIGHT)
                 vga_rgb_w = '1;
         end
     end

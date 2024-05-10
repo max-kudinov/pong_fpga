@@ -1,26 +1,24 @@
-`include "config.svh"
-
 module game_top (
     input  logic                    clk_i,
     input  logic                    rst_i,
-    input  logic [`KEYS_W    - 1:0] keys_i,
-    output logic [`LEDS_W    - 1:0] leds_o,
-    output logic [`VGA_RGB_W - 1:0] vga_rgb_o,
+    input  logic [KEYS_W-1:0]       keys_i,
+    output logic [LEDS_W-1:0]       leds_o,
+    output logic [VGA_RGB_W-1:0]    vga_rgb_o,
     output logic                    vga_vs_o,
     output logic                    vga_hs_o
 );
 
     // Player
-    logic [`X_POS_W - 1:0] player_paddle_x;
-    logic [`Y_POS_W - 1:0] player_paddle_y;
+    logic [X_POS_W-1:0] player_paddle_x;
+    logic [Y_POS_W-1:0] player_paddle_y;
 
     // Computer
-    logic [`X_POS_W - 1:0] pc_paddle_x;
-    logic [`Y_POS_W - 1:0] pc_paddle_y;
+    logic [X_POS_W-1:0] pc_paddle_x;
+    logic [Y_POS_W-1:0] pc_paddle_y;
 
     // Ball
-    logic [`X_POS_W - 1:0] ball_x;
-    logic [`Y_POS_W - 1:0] ball_y;
+    logic [X_POS_W-1:0] ball_x;
+    logic [Y_POS_W-1:0] ball_y;
 
     logic new_frame;
 

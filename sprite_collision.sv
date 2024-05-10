@@ -1,30 +1,28 @@
-`include "config.svh"
-
 module sprite_collision (
     input  logic                  clk_i,
     input  logic                  rst_i,
 
-    input  logic [`X_POS_W - 1:0] rect1_left_i,
-    input  logic [`X_POS_W - 1:0] rect1_right_i,
-    input  logic [`Y_POS_W - 1:0] rect1_top_i,
-    input  logic [`Y_POS_W - 1:0] rect1_bottom_i,
+    input  logic [X_POS_W - 1:0] rect1_left_i,
+    input  logic [X_POS_W - 1:0] rect1_right_i,
+    input  logic [Y_POS_W - 1:0] rect1_top_i,
+    input  logic [Y_POS_W - 1:0] rect1_bottom_i,
 
-    input  logic [`X_POS_W - 1:0] rect2_left_i,
-    input  logic [`X_POS_W - 1:0] rect2_right_i,
-    input  logic [`Y_POS_W - 1:0] rect2_top_i,
-    input  logic [`Y_POS_W - 1:0] rect2_bottom_i,
+    input  logic [X_POS_W - 1:0] rect2_left_i,
+    input  logic [X_POS_W - 1:0] rect2_right_i,
+    input  logic [Y_POS_W - 1:0] rect2_top_i,
+    input  logic [Y_POS_W - 1:0] rect2_bottom_i,
 
     output logic                  collision_o
 );
-    logic [`X_POS_W - 1:0] rect1_left;
-    logic [`X_POS_W - 1:0] rect1_right;
-    logic [`Y_POS_W - 1:0] rect1_top;
-    logic [`Y_POS_W - 1:0] rect1_bottom;
+    logic [X_POS_W - 1:0] rect1_left;
+    logic [X_POS_W - 1:0] rect1_right;
+    logic [Y_POS_W - 1:0] rect1_top;
+    logic [Y_POS_W - 1:0] rect1_bottom;
 
-    logic [`X_POS_W - 1:0] rect2_left;
-    logic [`X_POS_W - 1:0] rect2_right;
-    logic [`Y_POS_W - 1:0] rect2_top;
-    logic [`Y_POS_W - 1:0] rect2_bottom;
+    logic [X_POS_W - 1:0] rect2_left;
+    logic [X_POS_W - 1:0] rect2_right;
+    logic [Y_POS_W - 1:0] rect2_top;
+    logic [Y_POS_W - 1:0] rect2_bottom;
 
     always_ff @(posedge clk_i)
         if (rst_i) begin

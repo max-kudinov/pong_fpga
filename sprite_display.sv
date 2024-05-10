@@ -1,20 +1,18 @@
-`include "config.svh"
-
 module sprite_display #(
     parameter RECT_W = 10,
     parameter RECT_H = 10
 ) (
     input  logic                    clk_i,
     input  logic                    rst_i,
-    input  logic [  `X_POS_W - 1:0] rect_x,
-    input  logic [  `Y_POS_W - 1:0] rect_y,
-    input  logic [  `X_POS_W - 1:0] pixel_x,
-    input  logic [  `Y_POS_W - 1:0] pixel_y,
-    output logic [`VGA_RGB_W - 1:0] vga_rgb_o,
+    input  logic [  X_POS_W - 1:0] rect_x,
+    input  logic [  Y_POS_W - 1:0] rect_y,
+    input  logic [  X_POS_W - 1:0] pixel_x,
+    input  logic [  Y_POS_W - 1:0] pixel_y,
+    output logic [VGA_RGB_W - 1:0] vga_rgb_o,
     output logic                    on_sprite_o
 );
 
-    logic [`VGA_RGB_W-1:0] vga_rgb_w;
+    logic [VGA_RGB_W-1:0] vga_rgb_w;
     logic                  on_sprite_w;
 
     always_comb begin
