@@ -1,20 +1,20 @@
 `include "config.svh"
 
 module game_logic (
-    input  logic                  clk_i,
-    input  logic                  rst_i,
-    input  logic [`KEYS_W - 1:0]  keys_i,
+    input  logic                clk_i,
+    input  logic                rst_i,
+    input  logic [`KEYS_W-1:0]  keys_i,
 
-    input  logic                  new_frame_i,
+    input  logic                new_frame_i,
 
-    output logic [`X_POS_W - 1:0] player_x_o,
-    output logic [`Y_POS_W - 1:0] player_y_o,
+    output logic [`X_POS_W-1:0] player_x_o,
+    output logic [`Y_POS_W-1:0] player_y_o,
 
-    output logic [`X_POS_W - 1:0] enemy_x_o,
-    output logic [`Y_POS_W - 1:0] enemy_y_o,
+    output logic [`X_POS_W-1:0] enemy_x_o,
+    output logic [`Y_POS_W-1:0] enemy_y_o,
 
-    output logic [`X_POS_W - 1:0] ball_x_o,
-    output logic [`Y_POS_W - 1:0] ball_y_o
+    output logic [`X_POS_W-1:0] ball_x_o,
+    output logic [`Y_POS_W-1:0] ball_y_o
 );
 
     sprite_t                  player;
@@ -32,10 +32,10 @@ module game_logic (
     logic [2:0]               player_colls;
     logic [2:0]               enemy_colls;
 
-    logic [`BALL_SPEED_W-1:0] ball_speed_x;
-    logic [`BALL_SPEED_W-1:0] ball_speed_y;
-    logic [`BALL_SPEED_W-1:0] ball_speed_x_w;
-    logic [`BALL_SPEED_W-1:0] ball_speed_y_w;
+    logic [`SPEED_W-1:0]      ball_speed_x;
+    logic [`SPEED_W-1:0]      ball_speed_y;
+    logic [`SPEED_W-1:0]      ball_speed_x_w;
+    logic [`SPEED_W-1:0]      ball_speed_y_w;
 
     logic                     update_enemy;
     logic                     update_player;
@@ -119,8 +119,8 @@ module game_logic (
     assign key_up   = keys_i[0];
     assign key_down = keys_i[1];
 
+    // Calculate new player paddle coordinates
     always_comb begin
-        // Calculate new player paddle coordinates
         player.x_pos = `X_POS_W' (`SCREEN_H_RES - 20); 
         player.y_pos = player_y_o;
 
@@ -139,8 +139,8 @@ module game_logic (
         else
             enemy_center <= enemy_y_o + PADDLE_CENTER;
 
+    // Calculate new enemy paddle coordinates
     always_comb begin
-        // Calculate new enemy paddle coordinates
         enemy.x_pos = `X_POS_W' (20); 
         enemy.y_pos = enemy_y_o;
 
@@ -151,14 +151,14 @@ module game_logic (
             enemy.y_pos = enemy_y_o + 1'b1;
     end
 
+    // Calculate new ball coordinates
     always_comb begin
-        // Calculate new ball coordinates
-        if (ball_speed_x[`BALL_SPEED_W-1])
+        if (ball_speed_x[`SPEED_W-1])
             ball.x_pos = ball_x_o - `X_POS_W' (ball_speed_x[3:0]);
         else
             ball.x_pos = ball_x_o + `X_POS_W' (ball_speed_x[3:0]);
 
-        if (ball_speed_y[`BALL_SPEED_W-1])
+        if (ball_speed_y[`SPEED_W-1])
             ball.y_pos = ball_y_o - `Y_POS_W' (ball_speed_y[3:0]);
         else
             ball.y_pos = ball_y_o + `Y_POS_W' (ball_speed_y[3:0]);
@@ -201,39 +201,49 @@ module game_logic (
         player_y_o = v_center;
     end
 
+    // Calculate new ball speed
     always_comb begin
-        // Calculate new ball speed
         ball_speed_x_w = ball_speed_x;
         ball_speed_y_w = ball_speed_y;
 
         if (player_colls[0]) begin
-            ball_speed_x_w = {4'b1100, rnd_num[0]};
-            ball_speed_y_w[3:0] = {2'b00, rnd_num[1], 1'b1};
+            ball_speed_x_w[`SPEED_W-1]   = 1'b1;
+            ball_speed_x_w[`SPEED_W-2:1] = `DEFLECT_SPEED_X;
+            ball_speed_x_w[0]            = rnd_num[0];
+
+            ball_speed_y_w[`SPEED_W-2:0] = `DEFLECT_SPEED_Y;
+            ball_speed_y_w[1]            = rnd_num[1];
         end
 
         if (enemy_colls[0]) begin
-            ball_speed_x_w = {4'b0100, rnd_num[2]};
-            ball_speed_y_w[3:0] = {2'b00, rnd_num[3], 1'b1};
+            ball_speed_x_w[`SPEED_W-1]   = 1'b0;
+            ball_speed_x_w[`SPEED_W-2:1] = `DEFLECT_SPEED_X;
+            ball_speed_x_w[0]            = rnd_num[2];
+
+            ball_speed_y_w[`SPEED_W-2:0] = `DEFLECT_SPEED_Y;
+            ball_speed_y_w[1]            = rnd_num[3];
         end
 
         if ((key_up && player_colls[1]) || enemy_colls[1]) begin
-            ball_speed_y_w = 5'b10101; 
+            ball_speed_y_w[`SPEED_W-1]   = 1'b1;
+            ball_speed_y_w[`SPEED_W-2:0] = `SIDE_HIT_SPEED_Y;
         end
 
         if ((key_down && player_colls[2]) || enemy_colls[2]) begin
-            ball_speed_y_w = 5'b00101; 
+            ball_speed_y_w[`SPEED_W-1]   = 1'b0;
+            ball_speed_y_w[`SPEED_W-2:0] = `SIDE_HIT_SPEED_Y;
         end
 
         if ((ball_x_o > `SCREEN_H_RES) || (ball_x_o < `SCREEN_BORDER)) begin
-            ball_speed_x_w = { rnd_num[4], 2'b01, rnd_num[7:6] };
-            ball_speed_y_w = { rnd_num[5], 3'b000, rnd_num[8]  };
+            ball_speed_x_w = { rnd_num[4], 2'b01,  rnd_num[7:6] };
+            ball_speed_y_w = { rnd_num[5], 3'b000, rnd_num[8]   };
         end
 
         if (ball_y_o < `SCREEN_BORDER)
-            ball_speed_y_w[`BALL_SPEED_W-1] = 1'b0;
+            ball_speed_y_w[`SPEED_W-1] = 1'b0;
 
         if (ball_y_o + `SCREEN_BORDER > `SCREEN_V_RES)
-            ball_speed_y_w[`BALL_SPEED_W-1] = 1'b1;
+            ball_speed_y_w[`SPEED_W-1] = 1'b1;
     end
 
     always_ff @(posedge clk_i)

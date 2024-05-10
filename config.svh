@@ -50,7 +50,10 @@
 `define BALL_BASE_SPEED 60
 
 `define BALL_SIDE 10
-`define BALL_SPEED_W 5
+`define SPEED_W 5
+`define DEFLECT_SPEED_X (`SPEED_W-2)'(100)
+`define DEFLECT_SPEED_Y (`SPEED_W-1)'(0001)
+`define SIDE_HIT_SPEED_Y (`SPEED_W-1)'(0101)
 
 `define SCREEN_BORDER 10 
 `define SEPARATOR_WIDTH 6
