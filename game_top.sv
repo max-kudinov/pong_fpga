@@ -30,13 +30,13 @@ module game_top
     );
 
     game_display i_game_display (
-        .clk_i               ( clk_i     ),
-        .rst_i               ( rst_i     ),
-        .vga_hs_o            ( vga_hs_o  ),
-        .vga_vs_o            ( vga_vs_o  ),
-        .vga_rgb_o           ( vga_rgb_o ),
-        .new_frame_o         ( new_frame ),
-        .sprites_i           ( sprites   )
+        .clk_i       ( clk_i     ),
+        .rst_i       ( rst_i     ),
+        .vga_hs_o    ( vga_hs_o  ),
+        .vga_vs_o    ( vga_vs_o  ),
+        .vga_rgb_o   ( vga_rgb_o ),
+        .new_frame_o ( new_frame ),
+        .sprites_i   ( sprites   )
     );
 
     assign leds_o = keys_i;

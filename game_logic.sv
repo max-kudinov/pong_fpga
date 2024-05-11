@@ -18,7 +18,7 @@ module game_logic
     input  logic [KEYS_W-1:0] keys_i,
     input  logic              new_frame_i,
 
-    sprite_if                 sprites_o [N_SPRITES]
+    sprite_if.logic_mp        sprites_o [N_SPRITES]
 );
 
     // _Verilator doesn't like assignment to different struct fields

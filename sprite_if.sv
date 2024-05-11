@@ -5,4 +5,12 @@ interface sprite_if;
 
     sprite_t sprite;
 
+    modport logic_mp (
+        output  sprite
+    );
+
+    modport display_mp (
+        input  sprite
+    );
+
 endinterface : sprite_if

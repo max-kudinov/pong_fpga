@@ -15,7 +15,7 @@ module sprite_display
     output logic [VGA_RGB_W-1:0]  vga_rgb_o,
     output logic                  on_sprite_o,
 
-    sprite_if                     sprite_i
+    sprite_if.display_mp          sprite_i
 );
 
     logic [VGA_RGB_W-1:0] vga_rgb_w;

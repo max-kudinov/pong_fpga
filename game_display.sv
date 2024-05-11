@@ -22,7 +22,7 @@ module game_display
     output logic [VGA_RGB_W-1:0]  vga_rgb_o,
     output logic                  new_frame_o,
 
-    sprite_if                     sprites_i [N_SPRITES]
+    sprite_if.display_mp          sprites_i [N_SPRITES]
 );
 
     logic [VGA_RGB_W-1:0] sprite_rgb [N_SPRITES];
