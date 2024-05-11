@@ -13,11 +13,11 @@ module game_logic
            vga_pkg::BOARD_CLK_MHZ,
            lfsr_pkg::RND_NUM_W;
 (
-    input  logic                clk_i,
-    input  logic                rst_i,
+    input  logic               clk_i,
+    input  logic               rst_i,
     input  logic [KEYS_W-1:0]  keys_i,
 
-    input  logic                new_frame_i,
+    input  logic               new_frame_i,
 
     output logic [X_POS_W-1:0] player_x_o,
     output logic [Y_POS_W-1:0] player_y_o,
@@ -27,11 +27,30 @@ module game_logic
 
     output logic [X_POS_W-1:0] ball_x_o,
     output logic [Y_POS_W-1:0] ball_y_o
+
 );
 
-    sprite_t                  player;
-    sprite_t                  enemy;
-    sprite_t                  ball;
+    // _Verilator doesn't like assignment to different struct fields
+    // in different always blocks
+
+    // verilator lint_off UNOPTFLAT
+    sprite_t                  player_w;
+    sprite_t                  enemy_w;
+    sprite_t                  ball_w;
+    // verilator lint_on UNOPTFLAT
+
+    sprite_t                  player_o;
+    sprite_t                  enemy_o;
+    sprite_t                  ball_o;
+
+    assign player_x_o = player_o.x_pos;
+    assign player_y_o = player_o.y_pos;
+
+    assign enemy_x_o  = enemy_o.x_pos;
+    assign enemy_y_o  = enemy_o.y_pos;
+
+    assign ball_x_o   = ball_o.x_pos;
+    assign ball_y_o   = ball_o.y_pos;
 
     logic                     key_up;
     logic                     key_down;
@@ -81,19 +100,11 @@ module game_logic
     );
 
     // ' symbol is needed to cast packed array to unpacked
-    assign p_hit_top = '{ player_y_o,    player_y_o,        player.bottom - 1'b1 };
-    assign p_hit_bot = '{ player.bottom, player_y_o + 1'b1, player.bottom };
-    assign e_hit_top = '{ enemy_y_o,     enemy_y_o,         enemy.bottom - 1'b1 };
-    assign e_hit_bot = '{ enemy.bottom,  enemy_y_o + 1'b1,  enemy.bottom };
+    assign p_hit_top = '{ player_o.y_pos,  player_o.y_pos,        player_o.bottom - 1'b1 };
+    assign p_hit_bot = '{ player_o.bottom, player_o.y_pos + 1'b1, player_o.bottom };
+    assign e_hit_top = '{ enemy_o.y_pos,   enemy_o.y_pos,         enemy_o.bottom - 1'b1 };
+    assign e_hit_bot = '{ enemy_o.bottom,  enemy_o.y_pos + 1'b1,  enemy_o.bottom };
 
-    assign player.right  = player_x_o + PADDLE_WIDTH;
-    assign player.bottom = player_y_o + PADDLE_HEIGHT;
-
-    assign enemy.right   =  enemy_x_o + PADDLE_WIDTH;
-    assign enemy.bottom  =  enemy_y_o + PADDLE_HEIGHT;
-
-    assign ball.right    =  ball_x_o + BALL_SIDE;
-    assign ball.bottom   =  ball_y_o + BALL_SIDE;
 
     genvar i;
     generate
@@ -101,14 +112,14 @@ module game_logic
             sprite_collision i_player_collision (
                 .clk_i          ( clk_i            ),
                 .rst_i          ( rst_i            ),
-                .rect1_left_i   ( player_x_o       ),
-                .rect1_right_i  ( player.right     ),
+                .rect1_left_i   ( player_o.x_pos       ),
+                .rect1_right_i  ( player_o.right     ),
                 .rect1_top_i    ( p_hit_top    [i] ),
                 .rect1_bottom_i ( p_hit_bot    [i] ),
-                .rect2_left_i   ( ball_x_o         ),
-                .rect2_right_i  ( ball.right       ),
-                .rect2_top_i    ( ball_y_o         ),
-                .rect2_bottom_i ( ball.bottom      ),
+                .rect2_left_i   ( ball_o.x_pos         ),
+                .rect2_right_i  ( ball_o.right       ),
+                .rect2_top_i    ( ball_o.y_pos         ),
+                .rect2_bottom_i ( ball_o.bottom      ),
                 .collision_o    ( player_colls [i] )
             );
         end
@@ -117,14 +128,14 @@ module game_logic
             sprite_collision i_enemy_collision (
                 .clk_i          ( clk_i           ),
                 .rst_i          ( rst_i           ),
-                .rect1_left_i   ( enemy_x_o       ),
-                .rect1_right_i  ( enemy.right     ),
+                .rect1_left_i   ( enemy_o.x_pos       ),
+                .rect1_right_i  ( enemy_o.right     ),
                 .rect1_top_i    ( e_hit_top   [i] ),
                 .rect1_bottom_i ( e_hit_bot   [i] ),
-                .rect2_left_i   ( ball_x_o        ),
-                .rect2_right_i  ( ball.right      ),
-                .rect2_top_i    ( ball_y_o        ),
-                .rect2_bottom_i ( ball.bottom     ),
+                .rect2_left_i   ( ball_o.x_pos        ),
+                .rect2_right_i  ( ball_o.right      ),
+                .rect2_top_i    ( ball_o.y_pos        ),
+                .rect2_bottom_i ( ball_o.bottom     ),
                 .collision_o    ( enemy_colls [i] )
             );
         end
@@ -135,84 +146,86 @@ module game_logic
 
     // Calculate new player paddle coordinates
     always_comb begin
-        player.x_pos = X_POS_W' (SCREEN_H_RES - 20); 
-        player.y_pos = player_y_o;
+        player_w.x_pos = X_POS_W' (SCREEN_H_RES - 20); 
+        player_w.y_pos = player_o.y_pos;
 
         // Move down
-        if (key_down && (player_y_o < DOWN_LIMIT))
-            player.y_pos = player_y_o + 1'b1;
+        if (key_down && (player_o.y_pos < DOWN_LIMIT))
+            player_w.y_pos = player_w.y_pos + 1'b1;
 
         // Move up
-        if (key_up && (player_y_o > SCREEN_BORDER))
-            player.y_pos = player_y_o - 1'b1;
+        if (key_up && (player_o.y_pos > SCREEN_BORDER))
+            player_w.y_pos = player_w.y_pos - 1'b1;
     end
 
     always_ff @(posedge clk_i)
         if (rst_i)
             enemy_center <= '0;
         else
-            enemy_center <= enemy_y_o + PADDLE_CENTER;
+            enemy_center <= enemy_o.y_pos + PADDLE_CENTER;
 
     // Calculate new enemy paddle coordinates
     always_comb begin
-        enemy.x_pos = X_POS_W' (20); 
-        enemy.y_pos = enemy_y_o;
+        enemy_w.x_pos = X_POS_W' (20); 
+        enemy_w.y_pos = enemy_o.y_pos;
 
-        if ((enemy_center > ball_y_o) && (enemy_y_o > SCREEN_BORDER))
-            enemy.y_pos = enemy_y_o - 1'b1;
+        if ((enemy_center > ball_o.y_pos) && (enemy_o.y_pos > SCREEN_BORDER))
+            enemy_w.y_pos = enemy_o.y_pos - 1'b1;
 
-        if ((enemy_center < ball_y_o) && (enemy_y_o < DOWN_LIMIT))
-            enemy.y_pos = enemy_y_o + 1'b1;
+        if ((enemy_center < ball_o.y_pos) && (enemy_o.y_pos < DOWN_LIMIT))
+            enemy_w.y_pos = enemy_o.y_pos + 1'b1;
     end
 
     // Calculate new ball coordinates
     always_comb begin
         if (ball_speed_x[SPEED_W-1])
-            ball.x_pos = ball_x_o - X_POS_W' (ball_speed_x[3:0]);
+            ball_w.x_pos = ball_o.x_pos - X_POS_W' (ball_speed_x[3:0]);
         else
-            ball.x_pos = ball_x_o + X_POS_W' (ball_speed_x[3:0]);
+            ball_w.x_pos = ball_o.x_pos + X_POS_W' (ball_speed_x[3:0]);
 
         if (ball_speed_y[SPEED_W-1])
-            ball.y_pos = ball_y_o - Y_POS_W' (ball_speed_y[3:0]);
+            ball_w.y_pos = ball_o.y_pos - Y_POS_W' (ball_speed_y[3:0]);
         else
-            ball.y_pos = ball_y_o + Y_POS_W' (ball_speed_y[3:0]);
+            ball_w.y_pos = ball_o.y_pos + Y_POS_W' (ball_speed_y[3:0]);
 
-        if ((ball_x_o > SCREEN_H_RES) || (ball_x_o < SCREEN_BORDER)) begin
-            ball.x_pos = SCREEN_H_RES / 2;
-            ball.y_pos = SCREEN_V_RES / 2;
+        if ((ball_o.x_pos > SCREEN_H_RES) || (ball_o.x_pos < SCREEN_BORDER)) begin
+            ball_w.x_pos = SCREEN_H_RES / 2;
+            ball_w.y_pos = SCREEN_V_RES / 2;
         end
     end
 
+    assign player_w.right  = player_w.x_pos + PADDLE_WIDTH;
+    assign player_w.bottom = player_w.y_pos + PADDLE_HEIGHT;
+
+    assign enemy_w.right   = enemy_w.x_pos + PADDLE_WIDTH;
+    assign enemy_w.bottom  = enemy_w.y_pos + PADDLE_HEIGHT;
+
+    assign ball_w.right    = ball_w.x_pos + BALL_SIDE;
+    assign ball_w.bottom   = ball_w.y_pos + BALL_SIDE;
+
     always_ff @(posedge clk_i)
         if (rst_i) begin
-            player_x_o <= '0;
-            player_y_o <= V_CENTER;
+            player_o       <= '0;
+            player_o.y_pos <= V_CENTER;
 
-            enemy_x_o  <= '0;
-            enemy_y_o  <= V_CENTER;
+            enemy_o        <= '0;
+            enemy_o.y_pos  <= V_CENTER;
 
-            ball_x_o   <= '0;
-            ball_y_o   <= '0;
+            ball_o         <= '0;
         end else begin
-            if (update_player) begin
-                player_x_o <= player.x_pos;
-                player_y_o <= player.y_pos;
-            end
+            if (update_player)
+                player_o <= player_w;
 
-            if (update_enemy) begin
-                enemy_x_o  <= enemy.x_pos;
-                enemy_y_o  <= enemy.y_pos;
-            end
+            if (update_enemy)
+                enemy_o  <= enemy_w;
 
-            if (new_frame_i) begin
-                ball_x_o   <= ball.x_pos;
-                ball_y_o   <= ball.y_pos;
-            end
+            if (new_frame_i)
+                ball_o   <= ball_w;
         end
 
     // Initialize FPGA registers on upload
     initial begin
-        player_y_o = V_CENTER;
+        player_o.y_pos = V_CENTER;
     end
 
     // Calculate new ball speed
@@ -248,15 +261,15 @@ module game_logic
             ball_speed_y_w[SPEED_W-2:0] = SIDE_HIT_SPEED_Y;
         end
 
-        if ((ball_x_o > SCREEN_H_RES) || (ball_x_o < SCREEN_BORDER)) begin
+        if ((ball_o.x_pos > SCREEN_H_RES) || (ball_o.x_pos < SCREEN_BORDER)) begin
             ball_speed_x_w = { rnd_num[4], 2'b01,  rnd_num[7:6] };
             ball_speed_y_w = { rnd_num[5], 3'b000, rnd_num[8]   };
         end
 
-        if (ball_y_o < SCREEN_BORDER)
+        if (ball_o.y_pos < SCREEN_BORDER)
             ball_speed_y_w[SPEED_W-1] = 1'b0;
 
-        if (ball_y_o + SCREEN_BORDER > SCREEN_V_RES)
+        if (ball_o.y_pos + SCREEN_BORDER > SCREEN_V_RES)
             ball_speed_y_w[SPEED_W-1] = 1'b1;
     end
 
