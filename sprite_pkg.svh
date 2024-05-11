@@ -12,7 +12,7 @@ package sprite_pkg;
     parameter PADDLE_WIDTH         = 10;
     parameter PADDLE_HEIGHT        = 50;
 
-    parameter PLAYER_SPEED         = 700;
+    parameter PLAYER_SPEED         = 500;
     parameter ENEMY_SPEED          = 250;
 
     parameter BALL_SIDE            = 10;
