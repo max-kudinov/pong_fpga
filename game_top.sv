@@ -2,9 +2,9 @@
 `include "vga_pkg.svh"
 
 module game_top
-    import board_pkg::*;
-    import vga_pkg::X_POS_W;
-    import vga_pkg::Y_POS_W;
+    import board_pkg::*,
+           vga_pkg::X_POS_W,
+           vga_pkg::Y_POS_W;
 (
     input  logic                    clk_i,
     input  logic                    rst_i,

@@ -4,14 +4,14 @@
 `include "lfsr_pkg.svh"
 
 module game_logic
-    import sprite_pkg::*;
-    import board_pkg::KEYS_W;
-    import vga_pkg::X_POS_W;
-    import vga_pkg::Y_POS_W;
-    import vga_pkg::SCREEN_H_RES;
-    import vga_pkg::SCREEN_V_RES;
-    import vga_pkg::BOARD_CLK_MHZ;
-    import lfsr_pkg::RND_NUM_W;
+    import sprite_pkg::*,
+           board_pkg::KEYS_W,
+           vga_pkg::X_POS_W,
+           vga_pkg::Y_POS_W,
+           vga_pkg::SCREEN_H_RES,
+           vga_pkg::SCREEN_V_RES,
+           vga_pkg::BOARD_CLK_MHZ,
+           lfsr_pkg::RND_NUM_W;
 (
     input  logic                clk_i,
     input  logic                rst_i,
@@ -130,8 +130,8 @@ module game_logic
         end
     endgenerate
 
-    assign key_up   = keys_i[0];
-    assign key_down = keys_i[1];
+    assign key_up   = keys_i[1];
+    assign key_down = keys_i[0];
 
     // Calculate new player paddle coordinates
     always_comb begin

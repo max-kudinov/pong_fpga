@@ -3,15 +3,15 @@
 `include "sprite_pkg.svh"
 
 module game_display
-    import board_pkg::VGA_RGB_W;
-    import vga_pkg::X_POS_W;
-    import vga_pkg::Y_POS_W;
-    import vga_pkg::SCREEN_H_RES;
-    import sprite_pkg::PADDLE_WIDTH;
-    import sprite_pkg::PADDLE_HEIGHT;
-    import sprite_pkg::BALL_SIDE;
-    import sprite_pkg::SEPARATOR_WIDTH;
-    import sprite_pkg::SEPARATOR_DOT_HEIGHT;
+    import board_pkg::VGA_RGB_W,
+           vga_pkg::X_POS_W,
+           vga_pkg::Y_POS_W,
+           vga_pkg::SCREEN_H_RES,
+           sprite_pkg::PADDLE_WIDTH,
+           sprite_pkg::PADDLE_HEIGHT,
+           sprite_pkg::BALL_SIDE,
+           sprite_pkg::SEPARATOR_WIDTH,
+           sprite_pkg::SEPARATOR_DOT_HEIGHT;
 (
     input  logic                    clk_i,
     input  logic                    rst_i,

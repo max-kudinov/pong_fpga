@@ -2,9 +2,9 @@
 `include "vga_pkg.svh"
 
 module sprite_display
-    import board_pkg::VGA_RGB_W;
-    import vga_pkg::X_POS_W;
-    import vga_pkg::Y_POS_W;
+    import board_pkg::VGA_RGB_W,
+           vga_pkg::X_POS_W,
+           vga_pkg::Y_POS_W;
 
 #(
     parameter RECT_W = 10,
