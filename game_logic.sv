@@ -30,15 +30,6 @@ module game_logic
 
 );
 
-    assign player_x_o = player_o.x_pos;
-    assign player_y_o = player_o.y_pos;
-
-    assign enemy_x_o  = enemy_o.x_pos;
-    assign enemy_y_o  = enemy_o.y_pos;
-
-    assign ball_x_o   = ball_o.x_pos;
-    assign ball_y_o   = ball_o.y_pos;
-
     // _Verilator doesn't like assignment to different struct fields
     // in different always blocks
 
@@ -52,6 +43,14 @@ module game_logic
     sprite_t                  enemy_o;
     sprite_t                  ball_o;
 
+    assign player_x_o = player_o.x_pos;
+    assign player_y_o = player_o.y_pos;
+
+    assign enemy_x_o  = enemy_o.x_pos;
+    assign enemy_y_o  = enemy_o.y_pos;
+
+    assign ball_x_o   = ball_o.x_pos;
+    assign ball_y_o   = ball_o.y_pos;
 
     logic                     key_up;
     logic                     key_down;
@@ -189,15 +188,16 @@ module game_logic
         .strobe         ( update_enemy  )
     );
 
+    // Initialize FPGA register on upload
+    initial begin
+        player_o = INIT_STATE;
+    end
+
     always_ff @(posedge clk_i)
         if (rst_i) begin
-            player_o       <= '0;
-            player_o.y_pos <= V_CENTER;
-
-            enemy_o        <= '0;
-            enemy_o.y_pos  <= V_CENTER;
-
-            ball_o         <= '0;
+            player_o     <= INIT_STATE;
+            enemy_o      <= INIT_STATE;
+            ball_o       <= '0;
         end else begin
             if (update_player)
                 player_o <= player_w;
@@ -217,11 +217,6 @@ module game_logic
 
     assign ball_w.right    = ball_w.x_pos + BALL_SIDE;
     assign ball_w.bottom   = ball_w.y_pos + BALL_SIDE;
-
-    // Initialize FPGA registers on upload
-    initial begin
-        player_o.y_pos = V_CENTER;
-    end
 
     lfsr i_lfsr (
         .clk_i     ( clk_i   ),

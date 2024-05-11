@@ -37,6 +37,8 @@ package sprite_pkg;
         logic [Y_POS_W-1:0] bottom;
     } sprite_t;
 
+    parameter sprite_t INIT_STATE = '{ 0, V_CENTER, 0, 0 };
+
 endpackage
 
 `endif
