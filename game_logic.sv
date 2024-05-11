@@ -30,6 +30,15 @@ module game_logic
 
 );
 
+    assign player_x_o = player_o.x_pos;
+    assign player_y_o = player_o.y_pos;
+
+    assign enemy_x_o  = enemy_o.x_pos;
+    assign enemy_y_o  = enemy_o.y_pos;
+
+    assign ball_x_o   = ball_o.x_pos;
+    assign ball_y_o   = ball_o.y_pos;
+
     // _Verilator doesn't like assignment to different struct fields
     // in different always blocks
 
@@ -43,22 +52,9 @@ module game_logic
     sprite_t                  enemy_o;
     sprite_t                  ball_o;
 
-    assign player_x_o = player_o.x_pos;
-    assign player_y_o = player_o.y_pos;
-
-    assign enemy_x_o  = enemy_o.x_pos;
-    assign enemy_y_o  = enemy_o.y_pos;
-
-    assign ball_x_o   = ball_o.x_pos;
-    assign ball_y_o   = ball_o.y_pos;
 
     logic                     key_up;
     logic                     key_down;
-
-    logic [X_POS_W-1:0]      p_hit_top [3];
-    logic [X_POS_W-1:0]      e_hit_top [3];
-    logic [X_POS_W-1:0]      p_hit_bot [3];
-    logic [X_POS_W-1:0]      e_hit_bot [3];
 
     logic [2:0]               player_colls;
     logic [2:0]               enemy_colls;
@@ -75,67 +71,48 @@ module game_logic
 
     logic [RND_NUM_W-1:0]    rnd_num;
 
-    strobe_gen #(
-        .BOARD_CLK_MHZ  ( BOARD_CLK_MHZ ),
-        .STROBE_FREQ_HZ ( PLAYER_SPEED   )
-    ) i_player_strobe_gen (
-        .clk_i          ( clk_i         ),
-        .rst_i          ( rst_i         ),
-        .strobe         ( update_player )
-    );
+    sprite_t [2:0]          p_hitboxes;
+    sprite_t [2:0]          e_hitboxes;
 
-    strobe_gen #(
-        .BOARD_CLK_MHZ  ( BOARD_CLK_MHZ ),
-        .STROBE_FREQ_HZ ( ENEMY_SPEED   )
-    ) i_enemy_strobe_gen (
-        .clk_i          ( clk_i         ),
-        .rst_i          ( rst_i         ),
-        .strobe         ( update_enemy  )
-    );
+    sprite_if               p_sprite [3] ();
+    sprite_if               e_sprite [3] ();
+    sprite_if               b_sprite     ();
 
-    lfsr i_lfsr (
-        .clk_i     ( clk_i   ),
-        .rst_i     ( rst_i   ),
-        .rnd_num_o ( rnd_num )
-    );
+    always_comb begin
+        p_hitboxes           = { 3 { player_o } };
+        e_hitboxes           = { 3 { enemy_o  } };
 
-    // ' symbol is needed to cast packed array to unpacked
-    assign p_hit_top = '{ player_o.y_pos,  player_o.y_pos,        player_o.bottom - 1'b1 };
-    assign p_hit_bot = '{ player_o.bottom, player_o.y_pos + 1'b1, player_o.bottom };
-    assign e_hit_top = '{ enemy_o.y_pos,   enemy_o.y_pos,         enemy_o.bottom - 1'b1 };
-    assign e_hit_bot = '{ enemy_o.bottom,  enemy_o.y_pos + 1'b1,  enemy_o.bottom };
+        b_sprite.sprite      = ball_o;
 
+        p_hitboxes[2].y_pos  = player_o.bottom - 1'b1;
+        e_hitboxes[2].y_pos  = enemy_o.bottom - 1'b1;
+
+        p_hitboxes[1].bottom = player_o.y_pos + 1'b1;
+        e_hitboxes[1].bottom = enemy_o.y_pos + 1'b1;
+    end
 
     genvar i;
     generate
         for (i = 0; i < 3; i++) begin : collision_player
+            assign p_sprite[i].sprite = p_hitboxes[i];
+
             sprite_collision i_player_collision (
                 .clk_i          ( clk_i            ),
                 .rst_i          ( rst_i            ),
-                .rect1_left_i   ( player_o.x_pos       ),
-                .rect1_right_i  ( player_o.right     ),
-                .rect1_top_i    ( p_hit_top    [i] ),
-                .rect1_bottom_i ( p_hit_bot    [i] ),
-                .rect2_left_i   ( ball_o.x_pos         ),
-                .rect2_right_i  ( ball_o.right       ),
-                .rect2_top_i    ( ball_o.y_pos         ),
-                .rect2_bottom_i ( ball_o.bottom      ),
+                .rect_1_i       ( p_sprite     [i] ),
+                .rect_2_i       ( b_sprite         ),
                 .collision_o    ( player_colls [i] )
             );
         end
 
         for (i = 0; i < 3; i++) begin : collision_enemy
+            assign e_sprite[i].sprite = e_hitboxes[i];
+
             sprite_collision i_enemy_collision (
                 .clk_i          ( clk_i           ),
                 .rst_i          ( rst_i           ),
-                .rect1_left_i   ( enemy_o.x_pos       ),
-                .rect1_right_i  ( enemy_o.right     ),
-                .rect1_top_i    ( e_hit_top   [i] ),
-                .rect1_bottom_i ( e_hit_bot   [i] ),
-                .rect2_left_i   ( ball_o.x_pos        ),
-                .rect2_right_i  ( ball_o.right      ),
-                .rect2_top_i    ( ball_o.y_pos        ),
-                .rect2_bottom_i ( ball_o.bottom     ),
+                .rect_1_i       ( e_sprite    [i] ),
+                .rect_2_i       ( b_sprite        ),
                 .collision_o    ( enemy_colls [i] )
             );
         end
@@ -194,14 +171,23 @@ module game_logic
         end
     end
 
-    assign player_w.right  = player_w.x_pos + PADDLE_WIDTH;
-    assign player_w.bottom = player_w.y_pos + PADDLE_HEIGHT;
+    strobe_gen #(
+        .BOARD_CLK_MHZ  ( BOARD_CLK_MHZ ),
+        .STROBE_FREQ_HZ ( PLAYER_SPEED   )
+    ) i_player_strobe_gen (
+        .clk_i          ( clk_i         ),
+        .rst_i          ( rst_i         ),
+        .strobe         ( update_player )
+    );
 
-    assign enemy_w.right   = enemy_w.x_pos + PADDLE_WIDTH;
-    assign enemy_w.bottom  = enemy_w.y_pos + PADDLE_HEIGHT;
-
-    assign ball_w.right    = ball_w.x_pos + BALL_SIDE;
-    assign ball_w.bottom   = ball_w.y_pos + BALL_SIDE;
+    strobe_gen #(
+        .BOARD_CLK_MHZ  ( BOARD_CLK_MHZ ),
+        .STROBE_FREQ_HZ ( ENEMY_SPEED   )
+    ) i_enemy_strobe_gen (
+        .clk_i          ( clk_i         ),
+        .rst_i          ( rst_i         ),
+        .strobe         ( update_enemy  )
+    );
 
     always_ff @(posedge clk_i)
         if (rst_i) begin
@@ -223,10 +209,25 @@ module game_logic
                 ball_o   <= ball_w;
         end
 
+    assign player_w.right  = player_w.x_pos + PADDLE_WIDTH;
+    assign player_w.bottom = player_w.y_pos + PADDLE_HEIGHT;
+
+    assign enemy_w.right   = enemy_w.x_pos + PADDLE_WIDTH;
+    assign enemy_w.bottom  = enemy_w.y_pos + PADDLE_HEIGHT;
+
+    assign ball_w.right    = ball_w.x_pos + BALL_SIDE;
+    assign ball_w.bottom   = ball_w.y_pos + BALL_SIDE;
+
     // Initialize FPGA registers on upload
     initial begin
         player_o.y_pos = V_CENTER;
     end
+
+    lfsr i_lfsr (
+        .clk_i     ( clk_i   ),
+        .rst_i     ( rst_i   ),
+        .rnd_num_o ( rnd_num )
+    );
 
     // Calculate new ball speed
     always_comb begin
