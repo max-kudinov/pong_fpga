@@ -1,34 +1,35 @@
 `include "board_pkg.svh"
 `include "vga_pkg.svh"
+`include "sprite_pkg.svh"
 
 module sprite_display
     import board_pkg::VGA_RGB_W,
            vga_pkg::X_POS_W,
-           vga_pkg::Y_POS_W;
+           vga_pkg::Y_POS_W,
+           sprite_pkg::sprite_t;
+(
+    input  logic                  clk_i,
+    input  logic                  rst_i,
+    input  logic [  X_POS_W-1:0]  pixel_x,
+    input  logic [  Y_POS_W-1:0]  pixel_y,
+    output logic [VGA_RGB_W-1:0]  vga_rgb_o,
+    output logic                  on_sprite_o,
 
-#(
-    parameter RECT_W = 10,
-    parameter RECT_H = 10
-) (
-    input  logic                    clk_i,
-    input  logic                    rst_i,
-    input  logic [  X_POS_W - 1:0] rect_x,
-    input  logic [  Y_POS_W - 1:0] rect_y,
-    input  logic [  X_POS_W - 1:0] pixel_x,
-    input  logic [  Y_POS_W - 1:0] pixel_y,
-    output logic [VGA_RGB_W - 1:0] vga_rgb_o,
-    output logic                    on_sprite_o
+    sprite_if                     sprite_i
 );
 
     logic [VGA_RGB_W-1:0] vga_rgb_w;
-    logic                  on_sprite_w;
+    logic                 on_sprite_w;
+    sprite_t              sprite;
+
+    assign sprite = sprite_i.sprite;
 
     always_comb begin
         vga_rgb_w   = '0;
         on_sprite_w = '0;
 
-        if (pixel_x > rect_x && pixel_x < rect_x + RECT_W &&
-           (pixel_y > rect_y && pixel_y < rect_y + RECT_H)) begin
+        if (pixel_x > sprite.x_pos && pixel_x < sprite.right &&
+           (pixel_y > sprite.y_pos && pixel_y < sprite.bottom )) begin
             vga_rgb_w   = '1;
             on_sprite_w = '1;
         end

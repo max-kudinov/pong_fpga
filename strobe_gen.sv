@@ -1,5 +1,5 @@
 module strobe_gen #(
-    parameter BOARD_CLK_MHZ = 50,
+    parameter BOARD_CLK_MHZ  = 50,
     parameter STROBE_FREQ_HZ = 1
 ) (
     input  logic clk_i,
@@ -10,7 +10,7 @@ module strobe_gen #(
     localparam CNT_MAX = BOARD_CLK_MHZ * 1_000_000 / STROBE_FREQ_HZ;
     localparam CNT_W   = $clog2(CNT_MAX + 1);
 
-    logic [CNT_W - 1:0] cnt;
+    logic [CNT_W-1:0] cnt;
 
     always_ff @(posedge clk_i)
         if (rst_i)

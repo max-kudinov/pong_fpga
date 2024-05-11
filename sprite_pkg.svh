@@ -9,6 +9,9 @@ package sprite_pkg;
     import vga_pkg::Y_POS_W;
     import vga_pkg::SCREEN_V_RES;
 
+    parameter N_SPRITES            = 3;
+    parameter N_HITBOXES           = 3;
+
     parameter PADDLE_WIDTH         = 10;
     parameter PADDLE_HEIGHT        = 50;
 

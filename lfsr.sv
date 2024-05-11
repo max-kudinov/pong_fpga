@@ -17,6 +17,6 @@ module lfsr
         if (rst_i)
             rnd_num_o <= RND_NUM_W' (RND_SEED); // random seed
         else
-            rnd_num_o <= { rnd_num_o[RND_NUM_W - 2:0], ^(rnd_num_o & TAPS) };
+            rnd_num_o <= { rnd_num_o[RND_NUM_W-2:0], ^(rnd_num_o & TAPS) };
 
 endmodule
