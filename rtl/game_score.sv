@@ -15,10 +15,10 @@ module game_score
     score_t enemy_s;
 
     // Set score coordinates
-    assign player_s.x_pos = PS_X;
-    assign player_s.y_pos = PS_Y;
-    assign enemy_s.x_pos = ES_X;
-    assign enemy_s.y_pos = ES_Y;
+    assign player_s.x_pos = P_SCORE_X;
+    assign player_s.y_pos = P_SCORE_Y;
+    assign enemy_s.x_pos = E_SCORE_X;
+    assign enemy_s.y_pos = E_SCORE_Y;
 
     always_comb begin
         case (player_score_i)

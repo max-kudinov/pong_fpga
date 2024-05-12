@@ -12,11 +12,11 @@ package score_pkg;
     parameter MAX_SCORE = 5;
     parameter M_SCORE_W = 4; // 4 to cover 0..9
 
-    parameter PS_X = SCREEN_H_RES - 120;
-    parameter PS_Y = 50;
+    parameter P_SCORE_X = X_POS_W' (SCREEN_H_RES - 120);
+    parameter P_SCORE_Y = Y_POS_W' (50);
 
-    parameter ES_X = 120;
-    parameter ES_Y = 50;
+    parameter E_SCORE_X = X_POS_W' (120);
+    parameter E_SCORE_Y = Y_POS_W' (50);
 
     parameter SCALE   = 10;
     parameter SCORE_W = 3 * SCALE;

@@ -162,8 +162,8 @@ module game_logic
             ball_w.y_pos = ball_r.y_pos + Y_POS_W' (ball_speed_y[SPEED_W-2:0]);
 
         if ((ball_r.x_pos > SCREEN_H_RES - SCREEN_BORDER) || (ball_r.x_pos < SCREEN_BORDER)) begin
-            ball_w.x_pos = SCREEN_H_RES / 2;
-            ball_w.y_pos = SCREEN_V_RES / 2;
+            ball_w.x_pos = X_POS_W' (SCREEN_H_RES / 2);
+            ball_w.y_pos = Y_POS_W' (SCREEN_V_RES / 2);
         end
     end
 
@@ -185,14 +185,14 @@ module game_logic
         .strobe         ( update_enemy  )
     );
 
-    assign player_w.right  = player_w.x_pos + PADDLE_WIDTH;
-    assign player_w.bottom = player_w.y_pos + PADDLE_HEIGHT;
+    assign player_w.right  = player_w.x_pos + X_POS_W' (PADDLE_WIDTH);
+    assign player_w.bottom = player_w.y_pos + Y_POS_W' (PADDLE_HEIGHT);
 
-    assign enemy_w.right   = enemy_w.x_pos + PADDLE_WIDTH;
-    assign enemy_w.bottom  = enemy_w.y_pos + PADDLE_HEIGHT;
+    assign enemy_w.right   = enemy_w.x_pos + X_POS_W' (PADDLE_WIDTH);
+    assign enemy_w.bottom  = enemy_w.y_pos + Y_POS_W' (PADDLE_HEIGHT);
 
-    assign ball_w.right    = ball_w.x_pos + BALL_SIDE;
-    assign ball_w.bottom   = ball_w.y_pos + BALL_SIDE;
+    assign ball_w.right    = ball_w.x_pos + X_POS_W' (BALL_SIDE);
+    assign ball_w.bottom   = ball_w.y_pos + Y_POS_W' (BALL_SIDE);
 
     // Initialize FPGA register on upload
     initial begin
