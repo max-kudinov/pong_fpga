@@ -1,4 +1,7 @@
 # This is Pong on FPGA
+
+![pong](img/pong.jpg)
+
 Pong game written in SystemVerilog for FPGA board. After I wrote Pong in C I wanted to go deeper into hardware, so digital logic was the next step.
 
 ## How to run
