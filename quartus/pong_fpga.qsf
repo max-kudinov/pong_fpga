@@ -30,7 +30,9 @@ set_global_assignment -name SYSTEMVERILOG_FILE board_pkg.svh
 set_global_assignment -name SYSTEMVERILOG_FILE lfsr_pkg.svh
 set_global_assignment -name SYSTEMVERILOG_FILE vga_pkg.svh
 set_global_assignment -name SYSTEMVERILOG_FILE sprite_pkg.svh
+set_global_assignment -name SYSTEMVERILOG_FILE score_pkg.svh
 set_global_assignment -name SYSTEMVERILOG_FILE sprite_if.sv
+set_global_assignment -name SYSTEMVERILOG_FILE score_if.sv
 
 set_global_assignment -name SYSTEMVERILOG_FILE board_top.sv
 set_global_assignment -name SYSTEMVERILOG_FILE game_top.sv
@@ -38,6 +40,8 @@ set_global_assignment -name SYSTEMVERILOG_FILE game_logic.sv
 set_global_assignment -name SYSTEMVERILOG_FILE game_display.sv
 set_global_assignment -name SYSTEMVERILOG_FILE sprite_display.sv
 set_global_assignment -name SYSTEMVERILOG_FILE sprite_collision.sv
+set_global_assignment -name SYSTEMVERILOG_FILE game_score.sv
+set_global_assignment -name SYSTEMVERILOG_FILE score_display.sv
 set_global_assignment -name SYSTEMVERILOG_FILE strob_gen.sv
 set_global_assignment -name SYSTEMVERILOG_FILE lfsr.sv
 set_global_assignment -name SYSTEMVERILOG_FILE fsm.sv

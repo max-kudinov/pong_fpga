@@ -19,6 +19,7 @@ module game_top
     logic     new_frame;
 
     sprite_if sprites [N_SPRITES] ();
+    score_if  score               ();
 
     game_logic i_game_logic (
         .clk_i       ( clk_i     ),
@@ -26,7 +27,8 @@ module game_top
         .keys_i      ( keys_i    ),
         .new_frame_i ( new_frame ),
         .leds_o      ( leds_o    ),
-        .sprites_o   ( sprites   )
+        .sprites_o   ( sprites   ),
+        .score_o     ( score     )
     );
 
     game_display i_game_display (
@@ -36,7 +38,8 @@ module game_top
         .vga_vs_o    ( vga_vs_o  ),
         .vga_rgb_o   ( vga_rgb_o ),
         .new_frame_o ( new_frame ),
-        .sprites_i   ( sprites   )
+        .sprites_i   ( sprites   ),
+        .score_i     ( score     )
     );
 
 endmodule

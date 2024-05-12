@@ -22,7 +22,8 @@ module game_logic
     input  logic              new_frame_i,
     output logic [LEDS_W-1:0] leds_o,
 
-    sprite_if.logic_mp        sprites_o [N_SPRITES]
+    sprite_if.logic_mp        sprites_o [N_SPRITES],
+    score_if.control_mp       score_o
 );
 
     // _Verilator doesn't like assignment to different struct fields
@@ -320,5 +321,13 @@ module game_logic
         if (ball_r.x_pos < SCREEN_BORDER)
             player_score_w = player_score_r + 1'b1;
     end
+
+    game_score i_game_score (
+        .clk_i          ( clk_i          ),
+        .rst_i          ( rst_i          ),
+        .player_score_i ( player_score_r ),
+        .enemy_score_i  ( enemy_score_r  ),
+        .score_o        ( score_o        )
+    );
 
 endmodule

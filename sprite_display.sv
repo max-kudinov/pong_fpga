@@ -10,8 +10,8 @@ module sprite_display
 (
     input  logic                  clk_i,
     input  logic                  rst_i,
-    input  logic [  X_POS_W-1:0]  pixel_x,
-    input  logic [  Y_POS_W-1:0]  pixel_y,
+    input  logic [  X_POS_W-1:0]  pixel_x_i,
+    input  logic [  Y_POS_W-1:0]  pixel_y_i,
     output logic [VGA_RGB_W-1:0]  vga_rgb_o,
     output logic                  on_sprite_o,
 
@@ -28,8 +28,8 @@ module sprite_display
         vga_rgb_w   = '0;
         on_sprite_w = '0;
 
-        if (pixel_x > sprite.x_pos && pixel_x < sprite.right &&
-           (pixel_y > sprite.y_pos && pixel_y < sprite.bottom )) begin
+        if (pixel_x_i > sprite.x_pos && pixel_x_i < sprite.right &&
+           (pixel_y_i > sprite.y_pos && pixel_y_i < sprite.bottom )) begin
             vga_rgb_w   = '1;
             on_sprite_w = '1;
         end

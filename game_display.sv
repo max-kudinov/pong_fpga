@@ -22,11 +22,14 @@ module game_display
     output logic [VGA_RGB_W-1:0]  vga_rgb_o,
     output logic                  new_frame_o,
 
-    sprite_if.display_mp          sprites_i [N_SPRITES]
+    sprite_if.display_mp          sprites_i [N_SPRITES],
+    score_if.display_mp           score_i
 );
 
     logic [VGA_RGB_W-1:0] sprite_rgb [N_SPRITES];
+    logic [VGA_RGB_W-1:0] score_rgb;
     logic [N_SPRITES-1:0] on_sprite;
+    logic                 on_score;
 
     logic [  X_POS_W-1:0] vga_x_pos;
     logic [  Y_POS_W-1:0] vga_y_pos;
@@ -50,8 +53,8 @@ module game_display
             sprite_display i_player (
                 .clk_i       ( clk_i          ),
                 .rst_i       ( rst_i          ),
-                .pixel_x     ( vga_x_pos      ),
-                .pixel_y     ( vga_y_pos      ),
+                .pixel_x_i   ( vga_x_pos      ),
+                .pixel_y_i   ( vga_y_pos      ),
                 .on_sprite_o ( on_sprite  [i] ),
                 .vga_rgb_o   ( sprite_rgb [i] ),
                 .sprite_i    ( sprites_i  [i] )
@@ -59,11 +62,24 @@ module game_display
         end
     endgenerate
 
+    score_display i_score_display (
+        .clk_i      ( clk_i     ),
+        .rst_i      ( rst_i     ),
+        .pixel_x_i  ( vga_x_pos ),
+        .pixel_y_i  ( vga_y_pos ),
+        .on_score_o ( on_score  ),
+        .vga_rgb_o  ( score_rgb ),
+        .score_i    ( score_i   )
+    );
+
     // Output colors based on coordinates
     always_comb begin
         vga_rgb_w  = '0;
 
         if (vga_visible_range) begin
+            // Score is in the "background", thus other sprites overwrite it
+            if (on_score)
+                vga_rgb_w = score_rgb;
 
             for (int n = 0; n < N_SPRITES; n++) begin
                 if (on_sprite[n])
