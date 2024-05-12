@@ -7,7 +7,7 @@ module game_fsm
 (
     input  logic                   clk_i,
     input  logic                   rst_i,
-    input  logic [     KEYS_W-1:0] keys_i,
+    input  logic                   game_rst_i,
     input  logic [  M_SCORE_W-1:0] p_score_i,
     input  logic [  M_SCORE_W-1:0] e_score_i,
     output logic                   game_en_o
@@ -26,7 +26,7 @@ module game_fsm
 
         case (state)
             ST_WAIT_START: begin
-                if (|keys_i) next = ST_PLAY;
+                if (game_rst_i) next = ST_PLAY;
             end
             ST_PLAY: begin
                 if (p_score_i == MAX_SCORE || e_score_i == MAX_SCORE)

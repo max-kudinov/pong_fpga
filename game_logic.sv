@@ -113,7 +113,7 @@ module game_logic
     assign key_up   = keys_i[1];
     assign key_down = keys_i[0];
 
-    assign leds_o = keys_i;
+    assign leds_o = keys_i[1:0];
 
     // Calculate new player paddle coordinates
     always_comb begin
@@ -205,16 +205,18 @@ module game_logic
             enemy_r      <= INIT_ST_P;
             ball_r       <= INIT_ST_B;
         end else begin
+            if (~game_en)
+                ball_r   <= POS_HIDE;
+            else begin
             if (update_player)
                 player_r <= player_w;
 
             if (update_enemy)
                 enemy_r  <= enemy_w;
 
-            if (~game_en)
-                ball_r   <= POS_HIDE;
-            else if (new_frame_i)
+            if (new_frame_i)
                 ball_r   <= ball_w;
+            end
         end
 
     assign sprites_o[0].sprite = player_r;
@@ -288,12 +290,12 @@ module game_logic
         end
 
     game_fsm i_game_fsm (
-        .clk_i     ( clk_i          ),
-        .rst_i     ( rst_i          ),
-        .keys_i    ( keys_i         ),
-        .p_score_i ( player_score_r ),
-        .e_score_i ( enemy_score_r  ),
-        .game_en_o ( game_en        )
+        .clk_i      ( clk_i          ),
+        .rst_i      ( rst_i          ),
+        .game_rst_i ( keys_i [2]     ),
+        .p_score_i  ( player_score_r ),
+        .e_score_i  ( enemy_score_r  ),
+        .game_en_o  ( game_en        )
     );
 
     always_ff @(posedge clk_i)

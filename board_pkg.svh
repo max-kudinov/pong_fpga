@@ -3,7 +3,7 @@
 
 package board_pkg;
 
-    parameter KEYS_W    = 2;
+    parameter KEYS_W    = 3;
     parameter LEDS_W    = 2;
     parameter VGA_RGB_W = 3;
 

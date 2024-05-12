@@ -40,6 +40,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE sprite_display.sv
 set_global_assignment -name SYSTEMVERILOG_FILE sprite_collision.sv
 set_global_assignment -name SYSTEMVERILOG_FILE strob_gen.sv
 set_global_assignment -name SYSTEMVERILOG_FILE lfsr.sv
+set_global_assignment -name SYSTEMVERILOG_FILE fsm.sv
 
 # -------------------------------------------------------------------------- #
 # Set pins
@@ -51,6 +52,7 @@ set_location_assignment PIN_91 -to rst_n_i
 set_location_assignment PIN_69 -to leds_o[0]
 set_location_assignment PIN_70 -to leds_o[1]
 
+set_location_assignment PIN_90 -to keys_i[2]
 set_location_assignment PIN_86 -to keys_i[1]
 set_location_assignment PIN_87 -to keys_i[0]
 
