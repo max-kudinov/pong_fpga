@@ -44,8 +44,8 @@ package sprite_pkg;
     } sprite_t;
 
     parameter sprite_t INIT_ST_P = '{ 0, V_CENTER, 0, 0 };
-    parameter sprite_t INIT_ST_B = '{ SCREEN_H_RES / 2, SCREEN_V_RES / 2, 0, 0 };
-    parameter sprite_t POS_HIDE  = '{ SCREEN_H_RES, SCREEN_V_RES / 2, 0, 0 };
+    parameter sprite_t INIT_ST_B = '{ SCREEN_H_RES / 2 + BALL_SIDE / 2, 
+                                      SCREEN_V_RES / 2, 0, 0 };
 
 endpackage : sprite_pkg
 

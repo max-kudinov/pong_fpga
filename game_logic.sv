@@ -46,6 +46,7 @@ module game_logic
     logic                     update_player;
 
     logic                     game_en;
+    logic                     game_en_prev;
 
     logic    [ M_SCORE_W-1:0] player_score_w;
     logic    [ M_SCORE_W-1:0] enemy_score_w;
@@ -207,7 +208,7 @@ module game_logic
             ball_r       <= INIT_ST_B;
         end else begin
             if (~game_en)
-                ball_r   <= POS_HIDE;
+                ball_r   <= INIT_ST_B;
             else begin
             if (update_player)
                 player_r <= player_w;
@@ -303,7 +304,7 @@ module game_logic
         if (rst_i) begin
             player_score_r <= '0;
             enemy_score_r  <= '0;
-        end else if (~game_en) begin
+        end else if (game_en & ~game_en_prev) begin
             player_score_r <= '0;
             enemy_score_r  <= '0;
         end else if (new_frame_i) begin
@@ -321,6 +322,12 @@ module game_logic
         if (ball_r.x_pos < SCREEN_BORDER)
             player_score_w = player_score_r + 1'b1;
     end
+
+    always_ff @(posedge clk_i)
+        if (rst_i)
+            game_en_prev <= '0;
+        else
+            game_en_prev <= game_en;
 
     game_score i_game_score (
         .clk_i          ( clk_i          ),
