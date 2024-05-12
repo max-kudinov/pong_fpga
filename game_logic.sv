@@ -2,21 +2,25 @@
 `include "vga_pkg.svh"
 `include "sprite_pkg.svh"
 `include "lfsr_pkg.svh"
+`include "score_pkg.svh"
 
 module game_logic
     import sprite_pkg::*,
            board_pkg::KEYS_W,
+           board_pkg::LEDS_W,
            vga_pkg::X_POS_W,
            vga_pkg::Y_POS_W,
            vga_pkg::SCREEN_H_RES,
            vga_pkg::SCREEN_V_RES,
            vga_pkg::BOARD_CLK_MHZ,
-           lfsr_pkg::RND_NUM_W;
+           lfsr_pkg::RND_NUM_W,
+           score_pkg::M_SCORE_W;
 (
     input  logic              clk_i,
     input  logic              rst_i,
     input  logic [KEYS_W-1:0] keys_i,
     input  logic              new_frame_i,
+    output logic [LEDS_W-1:0] leds_o,
 
     sprite_if.logic_mp        sprites_o [N_SPRITES]
 );
@@ -39,6 +43,13 @@ module game_logic
 
     logic                     update_enemy;
     logic                     update_player;
+
+    logic                     game_en;
+
+    logic    [ M_SCORE_W-1:0] player_score_w;
+    logic    [ M_SCORE_W-1:0] enemy_score_w;
+    logic    [ M_SCORE_W-1:0] player_score_r;
+    logic    [ M_SCORE_W-1:0] enemy_score_r;
 
     logic    [   SPEED_W-1:0] ball_speed_x;
     logic    [   SPEED_W-1:0] ball_speed_y;
@@ -102,9 +113,11 @@ module game_logic
     assign key_up   = keys_i[1];
     assign key_down = keys_i[0];
 
+    assign leds_o = keys_i;
+
     // Calculate new player paddle coordinates
     always_comb begin
-        player_w.x_pos = X_POS_W' (SCREEN_H_RES - 20); 
+        player_w.x_pos = X_POS_W' (SCREEN_H_RES - PADDLE_PADDING); 
         player_w.y_pos = player_r.y_pos;
 
         // Move down
@@ -124,7 +137,7 @@ module game_logic
 
     // Calculate new enemy paddle coordinates
     always_comb begin
-        enemy_w.x_pos = X_POS_W' (20); 
+        enemy_w.x_pos = X_POS_W' (PADDLE_PADDING); 
         enemy_w.y_pos = enemy_r.y_pos;
 
         if ((enemy_center > ball_r.y_pos) && (enemy_r.y_pos > SCREEN_BORDER))
@@ -146,7 +159,7 @@ module game_logic
         else
             ball_w.y_pos = ball_r.y_pos + Y_POS_W' (ball_speed_y[SPEED_W-2:0]);
 
-        if ((ball_r.x_pos > SCREEN_H_RES) || (ball_r.x_pos < SCREEN_BORDER)) begin
+        if ((ball_r.x_pos > SCREEN_H_RES - SCREEN_BORDER) || (ball_r.x_pos < SCREEN_BORDER)) begin
             ball_w.x_pos = SCREEN_H_RES / 2;
             ball_w.y_pos = SCREEN_V_RES / 2;
         end
@@ -154,7 +167,7 @@ module game_logic
 
     strobe_gen #(
         .BOARD_CLK_MHZ  ( BOARD_CLK_MHZ ),
-        .STROBE_FREQ_HZ ( PLAYER_SPEED   )
+        .STROBE_FREQ_HZ ( PLAYER_SPEED  )
     ) i_player_strobe_gen (
         .clk_i          ( clk_i         ),
         .rst_i          ( rst_i         ),
@@ -181,14 +194,16 @@ module game_logic
 
     // Initialize FPGA register on upload
     initial begin
-        player_r = INIT_STATE;
+        player_r = INIT_ST_P;
+        enemy_r  = INIT_ST_P;
+        ball_r   = INIT_ST_B;
     end
 
     always_ff @(posedge clk_i)
         if (rst_i) begin
-            player_r     <= INIT_STATE;
-            enemy_r      <= INIT_STATE;
-            ball_r       <= '0;
+            player_r     <= INIT_ST_P;
+            enemy_r      <= INIT_ST_P;
+            ball_r       <= INIT_ST_B;
         end else begin
             if (update_player)
                 player_r <= player_w;
@@ -196,7 +211,9 @@ module game_logic
             if (update_enemy)
                 enemy_r  <= enemy_w;
 
-            if (new_frame_i)
+            if (~game_en)
+                ball_r   <= POS_HIDE;
+            else if (new_frame_i)
                 ball_r   <= ball_w;
         end
 
@@ -243,7 +260,7 @@ module game_logic
             ball_speed_y_w[SPEED_W-2:0] = SIDE_HIT_SPEED_Y;
         end
 
-        if ((ball_r.x_pos > SCREEN_H_RES) || (ball_r.x_pos < SCREEN_BORDER)) begin
+        if ((ball_r.x_pos > SCREEN_H_RES - SCREEN_BORDER) || (ball_r.x_pos < SCREEN_BORDER)) begin
             ball_speed_x_w = { rnd_num[4], 2'b01,  rnd_num[7:6] };
             ball_speed_y_w = { rnd_num[5], 3'b000, rnd_num[8]   };
         end
@@ -255,13 +272,51 @@ module game_logic
             ball_speed_y_w[SPEED_W-1] = 1'b1;
     end
 
+    // Initialize FPGA register on upload
+    initial begin
+        ball_speed_x = INIT_SPEED_B;
+        ball_speed_y = '0;
+    end
+
     always_ff @(posedge clk_i)
         if (rst_i) begin
-            ball_speed_x <= '0;
+            ball_speed_x <= INIT_SPEED_B;
             ball_speed_y <= '0;
         end else begin
             ball_speed_x <= ball_speed_x_w;
             ball_speed_y <= ball_speed_y_w;
         end
+
+    game_fsm i_game_fsm (
+        .clk_i     ( clk_i          ),
+        .rst_i     ( rst_i          ),
+        .keys_i    ( keys_i         ),
+        .p_score_i ( player_score_r ),
+        .e_score_i ( enemy_score_r  ),
+        .game_en_o ( game_en        )
+    );
+
+    always_ff @(posedge clk_i)
+        if (rst_i) begin
+            player_score_r <= '0;
+            enemy_score_r  <= '0;
+        end else if (~game_en) begin
+            player_score_r <= '0;
+            enemy_score_r  <= '0;
+        end else if (new_frame_i) begin
+            player_score_r <= player_score_w;
+            enemy_score_r  <= enemy_score_w;
+        end
+
+    always_comb begin
+        player_score_w = player_score_r;
+        enemy_score_w  = enemy_score_r;
+
+        if (ball_r.x_pos > SCREEN_H_RES - SCREEN_BORDER)
+            enemy_score_w = enemy_score_r + 1'b1;
+            
+        if (ball_r.x_pos < SCREEN_BORDER)
+            player_score_w = player_score_r + 1'b1;
+    end
 
 endmodule

@@ -8,12 +8,14 @@ package sprite_pkg;
     import vga_pkg::X_POS_W;
     import vga_pkg::Y_POS_W;
     import vga_pkg::SCREEN_V_RES;
+    import vga_pkg::SCREEN_H_RES;
 
     parameter N_SPRITES            = 3;
     parameter N_HITBOXES           = 3;
 
     parameter PADDLE_WIDTH         = 10;
     parameter PADDLE_HEIGHT        = 50;
+    parameter PADDLE_PADDING       = 30;
 
     parameter PLAYER_SPEED         = 500;
     parameter ENEMY_SPEED          = 250;
@@ -23,6 +25,7 @@ package sprite_pkg;
     parameter DEFLECT_SPEED_X      = (SPEED_W-2)'('b100);
     parameter DEFLECT_SPEED_Y      = (SPEED_W-1)'('b0001);
     parameter SIDE_HIT_SPEED_Y     = (SPEED_W-1)'('b0101);
+    parameter INIT_SPEED_B         = (SPEED_W)  '('b00100);
 
     parameter SCREEN_BORDER        = 10;
     parameter SEPARATOR_WIDTH      = 6;
@@ -40,8 +43,10 @@ package sprite_pkg;
         logic [Y_POS_W-1:0] bottom;
     } sprite_t;
 
-    parameter sprite_t INIT_STATE = '{ 0, V_CENTER, 0, 0 };
+    parameter sprite_t INIT_ST_P = '{ 0, V_CENTER, 0, 0 };
+    parameter sprite_t INIT_ST_B = '{ SCREEN_H_RES / 2, SCREEN_V_RES / 2, 0, 0 };
+    parameter sprite_t POS_HIDE  = '{ SCREEN_H_RES, SCREEN_V_RES / 2, 0, 0 };
 
-endpackage
+endpackage : sprite_pkg
 
 `endif

@@ -16,16 +16,16 @@ module game_top
     output logic                    vga_vs_o,
     output logic                    vga_hs_o
 );
+    logic     new_frame;
 
     sprite_if sprites [N_SPRITES] ();
-
-    logic     new_frame;
 
     game_logic i_game_logic (
         .clk_i       ( clk_i     ),
         .rst_i       ( rst_i     ),
         .keys_i      ( keys_i    ),
         .new_frame_i ( new_frame ),
+        .leds_o      ( leds_o    ),
         .sprites_o   ( sprites   )
     );
 
@@ -38,7 +38,5 @@ module game_top
         .new_frame_o ( new_frame ),
         .sprites_i   ( sprites   )
     );
-
-    assign leds_o = keys_i;
 
 endmodule
