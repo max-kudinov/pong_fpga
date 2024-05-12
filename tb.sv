@@ -2,13 +2,13 @@ module tb;
 
     localparam CLK_PERIOD   = 20;
     localparam RST_DURATION = 40;
-    localparam CLOCK_CYCLES = 10_000_000;
+    localparam CLOCK_CYCLES = 100_000;
 
     logic clk;
     logic rst;
-    logic [1:0] key;
+    logic [2:0] key;
 
-    assign key = 2'b10;
+    assign key = 3'b100;
 
     // verilator lint_off PINMISSING
     board_top dut
