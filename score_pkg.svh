@@ -9,7 +9,7 @@ package score_pkg;
     import vga_pkg::Y_POS_W;
     import vga_pkg::SCREEN_H_RES;
 
-    parameter MAX_SCORE = 10;
+    parameter MAX_SCORE = 5;
     parameter M_SCORE_W = 4; // 4 to cover 0..9
 
     parameter PS_X = SCREEN_H_RES - 120;
