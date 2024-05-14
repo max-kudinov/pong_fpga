@@ -34,8 +34,6 @@ package sprite_pkg;
     parameter DOWN_LIMIT           = X_POS_W' (SCREEN_V_RES - (SCREEN_BORDER + PADDLE_HEIGHT));
     parameter PADDLE_CENTER        = X_POS_W' (PADDLE_HEIGHT / 2);
 
-    parameter V_CENTER             = Y_POS_W' (SCREEN_V_RES / 2 - 32'(PADDLE_CENTER));
-
     typedef struct packed {
         logic [X_POS_W-1:0] x_pos;
         logic [Y_POS_W-1:0] y_pos;
@@ -43,9 +41,31 @@ package sprite_pkg;
         logic [Y_POS_W-1:0] bottom;
     } sprite_t;
 
-    parameter sprite_t INIT_ST_P = '{ 0, V_CENTER, 0, 0 };
-    parameter sprite_t INIT_ST_B = '{ SCREEN_H_RES / 2 + BALL_SIDE / 2, 
-                                      SCREEN_V_RES / 2, 0, 0 };
+    parameter V_CENTER           = Y_POS_W' (SCREEN_V_RES / 2 - 32'(PADDLE_CENTER));
+    parameter INIT_PLAYER_X      = SCREEN_H_RES - PADDLE_PADDING;
+    parameter INIT_PLAYER_Y      = V_CENTER;
+    parameter INIT_ENEMY_X       = PADDLE_PADDING;
+    parameter INIT_ENEMY_Y       = V_CENTER;
+    parameter INIT_BALL_X        = SCREEN_H_RES / 2 - BALL_SIDE / 2;
+    parameter INIT_BALL_Y        = SCREEN_V_RES / 2 - BALL_SIDE / 2;
+
+    parameter sprite_t INIT_ST_P = '{ INIT_PLAYER_X,
+                                      INIT_PLAYER_Y,
+                                      INIT_PLAYER_X + PADDLE_WIDTH,
+                                      INIT_PLAYER_Y + PADDLE_HEIGHT
+                                      };
+
+    parameter sprite_t INIT_ST_E = '{ INIT_ENEMY_X,
+                                      INIT_ENEMY_Y,
+                                      INIT_ENEMY_X + PADDLE_WIDTH,
+                                      INIT_ENEMY_Y + PADDLE_HEIGHT
+                                      };
+
+    parameter sprite_t INIT_ST_B = '{ INIT_BALL_X,
+                                      INIT_BALL_Y,
+                                      INIT_BALL_X + BALL_SIDE,
+                                      INIT_BALL_Y + BALL_SIDE
+                                      };
 
 endpackage : sprite_pkg
 

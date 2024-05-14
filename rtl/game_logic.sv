@@ -119,7 +119,7 @@ module game_logic
 
     // Calculate new player paddle coordinates
     always_comb begin
-        player_w.x_pos = X_POS_W' (SCREEN_H_RES - PADDLE_PADDING); 
+        player_w.x_pos = X_POS_W' (INIT_PLAYER_X); 
         player_w.y_pos = player_r.y_pos;
 
         // Move down
@@ -139,7 +139,7 @@ module game_logic
 
     // Calculate new enemy paddle coordinates
     always_comb begin
-        enemy_w.x_pos = X_POS_W' (PADDLE_PADDING); 
+        enemy_w.x_pos = X_POS_W' (INIT_ENEMY_X); 
         enemy_w.y_pos = enemy_r.y_pos;
 
         if ((enemy_center > ball_r.y_pos) && (enemy_r.y_pos > SCREEN_BORDER))
@@ -194,17 +194,10 @@ module game_logic
     assign ball_w.right    = ball_w.x_pos + X_POS_W' (BALL_SIDE);
     assign ball_w.bottom   = ball_w.y_pos + Y_POS_W' (BALL_SIDE);
 
-    // Initialize FPGA register on upload
-    initial begin
-        player_r = INIT_ST_P;
-        enemy_r  = INIT_ST_P;
-        ball_r   = INIT_ST_B;
-    end
-
     always_ff @(posedge clk_i)
         if (rst_i) begin
             player_r     <= INIT_ST_P;
-            enemy_r      <= INIT_ST_P;
+            enemy_r      <= INIT_ST_E;
             ball_r       <= INIT_ST_B;
         end else begin
             if (~game_en)
@@ -274,12 +267,6 @@ module game_logic
 
         if (ball_r.y_pos + SCREEN_BORDER > SCREEN_V_RES)
             ball_speed_y_w[SPEED_W-1] = 1'b1;
-    end
-
-    // Initialize FPGA register on upload
-    initial begin
-        ball_speed_x = INIT_SPEED_B;
-        ball_speed_y = '0;
     end
 
     always_ff @(posedge clk_i)
