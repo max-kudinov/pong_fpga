@@ -68,13 +68,13 @@ module game_logic
     sprite_t [N_HITBOXES-1:0] p_hitboxes;
     sprite_t [N_HITBOXES-1:0] e_hitboxes;
 
-    sprite_if                p_hit [N_SPRITES] ();
-    sprite_if                e_hit [N_SPRITES] ();
-    sprite_if                b_hit             ();
+    sprite_if                p_hit [N_HITBOXES] ();
+    sprite_if                e_hit [N_HITBOXES] ();
+    sprite_if                b_hit              ();
 
     always_comb begin
-        p_hitboxes           = { N_SPRITES { player_r } };
-        e_hitboxes           = { N_SPRITES { enemy_r  } };
+        p_hitboxes           = { N_HITBOXES { player_r } };
+        e_hitboxes           = { N_HITBOXES { enemy_r  } };
 
         b_hit.sprite         = ball_r;
 
