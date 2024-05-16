@@ -124,11 +124,11 @@ module game_logic
 
         // Move down
         if (key_down && (player_r.y_pos < DOWN_LIMIT))
-            player_w.y_pos = player_w.y_pos + 1'b1;
+            player_w.y_pos = player_r.y_pos + 1'b1;
 
         // Move up
         if (key_up && (player_r.y_pos > SCREEN_BORDER))
-            player_w.y_pos = player_w.y_pos - 1'b1;
+            player_w.y_pos = player_r.y_pos - 1'b1;
     end
 
     always_ff @(posedge clk_i)
