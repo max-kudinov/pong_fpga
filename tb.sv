@@ -11,7 +11,7 @@ module tb;
     assign key = 3'b100;
 
     // verilator lint_off PINMISSING
-    board_top dut
+    primer20k_board_top dut
     (
         .clk_i     ( clk   ),
         .rst_n_i   ( rst   ),

@@ -1,6 +1,6 @@
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE6E22C8
-set_global_assignment -name TOP_LEVEL_ENTITY board_top
+set_global_assignment -name TOP_LEVEL_ENTITY zeowaa_board_top
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 21.1.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "16:26:57  APRIL 23, 2024"
 set_global_assignment -name LAST_QUARTUS_VERSION "21.1.1 Lite Edition"
@@ -27,7 +27,7 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to *
 # Include files
 # -------------------------------------------------------------------------- #
 
-set_global_assignment -name SYSTEMVERILOG_FILE board_pkg.svh
+set_global_assignment -name SYSTEMVERILOG_FILE zeowaa_board_pkg.svh
 set_global_assignment -name SYSTEMVERILOG_FILE lfsr_pkg.svh
 set_global_assignment -name SYSTEMVERILOG_FILE vga_pkg.svh
 set_global_assignment -name SYSTEMVERILOG_FILE sprite_pkg.svh
@@ -35,7 +35,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE score_pkg.svh
 set_global_assignment -name SYSTEMVERILOG_FILE sprite_if.sv
 set_global_assignment -name SYSTEMVERILOG_FILE score_if.sv
 
-set_global_assignment -name SYSTEMVERILOG_FILE board_top.sv
+set_global_assignment -name SYSTEMVERILOG_FILE zeowaa_board_top.sv
 set_global_assignment -name SYSTEMVERILOG_FILE game_top.sv
 set_global_assignment -name SYSTEMVERILOG_FILE game_logic.sv
 set_global_assignment -name SYSTEMVERILOG_FILE game_display.sv

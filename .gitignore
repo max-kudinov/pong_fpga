@@ -5,3 +5,7 @@ quartus/db
 quartus/incremental_db
 quartus/output_files
 quartus/*.qws
+design.json
+pack.fs
+placed.json
+.nvim

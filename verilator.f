@@ -4,6 +4,7 @@
 --trace-structs
 --x-assign unique
 --x-initial unique
+-DPRIMER20K
 -Irtl
 -Irtl/include
-rtl/board_top.sv
+rtl/primer20k_board_top.sv
