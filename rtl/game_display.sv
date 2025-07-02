@@ -19,11 +19,11 @@ module game_display
     input  logic                  clk_i,
     input  logic                  rst_i,
 
-    input  logic                 serial_clk,
-    output logic [          2:0] tmds_data_p,
-    output logic [          2:0] tmds_data_n,
-    output logic                 tmds_clk_p,
-    output logic                 tmds_clk_n,
+    // input  logic                 serial_clk,
+    // output logic [          2:0] tmds_data_p,
+    // output logic [          2:0] tmds_data_n,
+    // output logic                 tmds_clk_p,
+    // output logic                 tmds_clk_n,
 
     // output logic                  vga_hs_o,
     // output logic                  vga_vs_o,
@@ -31,7 +31,8 @@ module game_display
     output logic                  new_frame_o,
 
     sprite_if.display_mp          sprites_i [N_SPRITES],
-    score_if.display_mp           score_i
+    score_if.display_mp           score_i,
+    display_if                    display
 );
 
     logic [COLOR_W-1:0] red;
@@ -53,43 +54,39 @@ module game_display
 
     if (DISPLAY_TYPE) begin : dvi_gen
 
-        // logic [2:0] tmds_data_p;
-        // logic [2:0] tmds_data_n;
-        // logic       tmds_clk_p;
-        // logic       tmds_clk_n;
-
         assign vga_visible_range = '1;
 
         dvi_top i_dvi_top (
             .vsync (vsync),
-            .serial_clk_i ( serial_clk  ),
-            .pixel_clk_i  ( clk_i       ),
-            .rst_i        ( rst_i       ),
 
-            .red_i        ( red         ),
-            .green_i      ( green       ),
-            .blue_i       ( blue        ),
+            .serial_clk_i ( display.serial_clk  ),
+            .pixel_clk_i  ( clk_i               ),
+            .rst_i        ( rst_i               ),
 
-            .x_o          ( vga_x_pos   ),
-            .y_o          ( vga_y_pos   ),
+            .red_i        ( red                 ),
+            .green_i      ( green               ),
+            .blue_i       ( blue                ),
 
-            .tmds_data_p  ( tmds_data_p ),
-            .tmds_data_n  ( tmds_data_n ),
+            .x_o          ( vga_x_pos           ),
+            .y_o          ( vga_y_pos           ),
 
-            .tmds_clk_p   ( tmds_clk_p  ),
-            .tmds_clk_n   ( tmds_clk_n  )
+            .tmds_data_p  ( display.tmds_data_p ),
+            .tmds_data_n  ( display.tmds_data_n ),
+
+            .tmds_clk_p   ( display.tmds_clk_p  ),
+            .tmds_clk_n   ( display.tmds_clk_n  )
         );
 
     end else begin : vga_gen
-        // vga i_vga (
-        //     .clk_i           ( clk_i             ),
-        //     .rst_i           ( rst_i             ),
-        //     .hsync_o         ( vga_hs_o          ),
-        //     .vsync_o         ( vga_vs_o          ),
-        //     .pixel_x_o       ( vga_x_pos         ),
-        //     .pixel_y_o       ( vga_y_pos         ),
-        //     .visible_range_o ( vga_visible_range )
-        // );
+        vga i_vga (
+            .clk_i           ( clk_i             ),
+            .rst_i           ( rst_i             ),
+            .hsync_o         ( vga_hs_o          ),
+            .vsync_o         ( vga_vs_o          ),
+            .pixel_x_o       ( vga_x_pos         ),
+            .pixel_y_o       ( vga_y_pos         ),
+            .visible_range_o ( vga_visible_range )
+        );
     end
 
     genvar i;

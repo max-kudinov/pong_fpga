@@ -5,6 +5,7 @@
 --x-assign unique
 --x-initial unique
 -DPRIMER20K
--Irtl
+-y rtl
+-y rtl/DVI
 -Irtl/include
 rtl/primer20k_board_top.sv

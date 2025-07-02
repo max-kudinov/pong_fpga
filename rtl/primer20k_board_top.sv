@@ -13,6 +13,8 @@ module primer20k_board_top
     output logic                 tmds_clk_n
 );
 
+    display_if display ();
+
     logic              pixel_clk;
     logic              pixel_clk_div2;
     logic              serial_clk;
@@ -35,52 +37,67 @@ module primer20k_board_top
     assign keys       = ~keys_inv_i;
     assign leds_inv_o = ~leds;
 
-    rPLL #(
-        .FCLKIN    ( "27" ),
-        .IDIV_SEL  ( 2    ),
-        .FBDIV_SEL ( 27   ),
-        .ODIV_SEL  ( 4    )
-    ) rpll_inst (
-        .CLKIN   ( clk_i      ), // 27 MHZ
-        .CLKOUT  ( serial_clk ), // 252 MHz
-        .LOCK    ( pll_lock   ),
-        .RESET   ( '0         ),
-        .RESET_P ( '0         ),
-        .CLKFB   ( '0         ),
-        .FBDSEL  ( '0         ),
-        .IDSEL   ( '0         ),
-        .ODSEL   ( '0         ),
-        .PSDA    ( '0         ),
-        .DUTYDA  ( '0         ),
-        .FDLY    ( '0         )
-    );
+    // Unwrap interface signals
+    assign display.serial_clk = serial_clk;
+    assign tmds_data_p        = display.tmds_data_p;
+    assign tmds_data_n        = display.tmds_data_n;
+    assign tmds_clk_p         = display.tmds_clk_p;
+    assign tmds_clk_n         = display.tmds_clk_n;
 
-    // Divide by 10 to get 25.2 MHz pixel clock
+    `ifndef VERILATOR
 
-    CLKDIV2 div_2 (
-        .HCLKIN ( serial_clk     ),
-        .CLKOUT ( pixel_clk_div2 ),
-        .RESETN ( pll_lock       )
-    );
+        rPLL #(
+            .FCLKIN    ( "27" ),
+            .IDIV_SEL  ( 2    ),
+            .FBDIV_SEL ( 27   ),
+            .ODIV_SEL  ( 4    )
+        ) rpll_inst (
+            .CLKIN   ( clk_i      ), // 27 MHZ
+            .CLKOUT  ( serial_clk ), // 252 MHz
+            .LOCK    ( pll_lock   ),
+            .RESET   ( '0         ),
+            .RESET_P ( '0         ),
+            .CLKFB   ( '0         ),
+            .FBDSEL  ( '0         ),
+            .IDSEL   ( '0         ),
+            .ODSEL   ( '0         ),
+            .PSDA    ( '0         ),
+            .DUTYDA  ( '0         ),
+            .FDLY    ( '0         )
+        );
 
-    CLKDIV #(
-        .DIV_MODE ("5")
-    ) div_5 (
-        .HCLKIN ( pixel_clk_div2 ),
-        .CLKOUT ( pixel_clk      ),
-        .RESETN ( pll_lock       )
-    );
+        // Divide by 10 to get 25.2 MHz pixel clock
+
+        CLKDIV2 div_2 (
+            .HCLKIN ( serial_clk     ),
+            .CLKOUT ( pixel_clk_div2 ),
+            .RESETN ( pll_lock       )
+        );
+
+        CLKDIV #(
+            .DIV_MODE ("5")
+        ) div_5 (
+            .HCLKIN ( pixel_clk_div2 ),
+            .CLKOUT ( pixel_clk      ),
+            .RESETN ( pll_lock       )
+        );
+
+    `endif
 
     game_top i_game_top (
         .clk_i       (  pixel_clk  ),
         .rst_i       (  rst        ),
         .keys_i      (  keys       ),
         .leds_o      (  leds       ),
-        .serial_clk  ( serial_clk  ),
-        .tmds_data_p ( tmds_data_p ),
-        .tmds_data_n ( tmds_data_n ),
-        .tmds_clk_p  ( tmds_clk_p  ),
-        .tmds_clk_n  ( tmds_clk_n  )
+
+        .display     ( display     )
+
+        // .serial_clk  ( serial_clk  ),
+        // .tmds_data_p ( tmds_data_p ),
+        // .tmds_data_n ( tmds_data_n ),
+        // .tmds_clk_p  ( tmds_clk_p  ),
+        // .tmds_clk_n  ( tmds_clk_n  )
+
         // .vga_rgb_o ( vga_rgb_o ),
         // .vga_hs_o  ( vga_hs_o  ),
         // .vga_vs_o  ( vga_vs_o  )
