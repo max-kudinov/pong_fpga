@@ -1,9 +1,9 @@
-`include "dvi_pkg.svh"
+`include "display_pkg.svh"
 
 `default_nettype none
 
 module dvi_sync
-    import dvi_pkg::*;
+    import display_pkg::*;
 (
     input  logic               clk_i,
     input  logic               rst_i,
