@@ -15,10 +15,14 @@ module primer20k_board_top
 
     display_if display ();
 
+    // verilator lint_off UNUSEDSIGNAL
+    // verilator lint_off UNDRIVEN
     logic              pixel_clk;
     logic              pixel_clk_div2;
     logic              serial_clk;
     logic              pll_lock;
+    // verilator lint_on UNDRIVEN
+    // verilator lint_on UNUSEDSIGNAL
     logic              rst;
     logic              upload_rst_n;
     logic [KEYS_W-1:0] keys;
@@ -85,22 +89,11 @@ module primer20k_board_top
     `endif
 
     game_top i_game_top (
-        .clk_i       (  pixel_clk  ),
-        .rst_i       (  rst        ),
-        .keys_i      (  keys       ),
-        .leds_o      (  leds       ),
-
-        .display     ( display     )
-
-        // .serial_clk  ( serial_clk  ),
-        // .tmds_data_p ( tmds_data_p ),
-        // .tmds_data_n ( tmds_data_n ),
-        // .tmds_clk_p  ( tmds_clk_p  ),
-        // .tmds_clk_n  ( tmds_clk_n  )
-
-        // .vga_rgb_o ( vga_rgb_o ),
-        // .vga_hs_o  ( vga_hs_o  ),
-        // .vga_vs_o  ( vga_vs_o  )
+        .clk_i       (  pixel_clk ),
+        .rst_i       (  rst       ),
+        .keys_i      (  keys      ),
+        .leds_o      (  leds      ),
+        .display     ( display    )
     );
 
 endmodule
