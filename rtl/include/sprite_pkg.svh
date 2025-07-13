@@ -1,14 +1,14 @@
 `ifndef SPRITE_PKG_SVH
 `define SPRITE_PKG_SVH
 
-`include "vga_pkg.svh"
+`include "display_pkg.svh"
 
 package sprite_pkg;
 
-    import vga_pkg::X_POS_W;
-    import vga_pkg::Y_POS_W;
-    import vga_pkg::SCREEN_V_RES;
-    import vga_pkg::SCREEN_H_RES;
+    import display_pkg::X_POS_W;
+    import display_pkg::Y_POS_W;
+    import display_pkg::SCREEN_V_RES;
+    import display_pkg::SCREEN_H_RES;
 
     parameter N_SPRITES            = 3;
     parameter N_HITBOXES           = 3;

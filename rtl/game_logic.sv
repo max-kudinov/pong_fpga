@@ -1,5 +1,5 @@
 `include "board_pkg.svh"
-`include "vga_pkg.svh"
+`include "display_pkg.svh"
 `include "sprite_pkg.svh"
 `include "lfsr_pkg.svh"
 `include "score_pkg.svh"
@@ -8,11 +8,11 @@ module game_logic
     import sprite_pkg::*,
            board_pkg::KEYS_W,
            board_pkg::LEDS_W,
-           vga_pkg::X_POS_W,
-           vga_pkg::Y_POS_W,
-           vga_pkg::SCREEN_H_RES,
-           vga_pkg::SCREEN_V_RES,
-           vga_pkg::BOARD_CLK_MHZ,
+           display_pkg::X_POS_W,
+           display_pkg::Y_POS_W,
+           display_pkg::SCREEN_H_RES,
+           display_pkg::SCREEN_V_RES,
+           board_pkg::BOARD_CLK_MHZ,
            lfsr_pkg::RND_NUM_W,
            score_pkg::M_SCORE_W;
 (

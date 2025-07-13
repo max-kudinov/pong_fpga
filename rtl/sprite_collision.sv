@@ -1,9 +1,9 @@
-`include "vga_pkg.svh"
+`include "display_pkg.svh"
 `include "sprite_pkg.svh"
 
 module sprite_collision
-    import vga_pkg::X_POS_W,
-           vga_pkg::Y_POS_W,
+    import display_pkg::X_POS_W,
+           display_pkg::Y_POS_W,
            sprite_pkg::sprite_t;
 (
     input  logic                  clk_i,

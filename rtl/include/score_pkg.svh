@@ -1,13 +1,13 @@
 `ifndef SCORE_PKG_SVH
 `define SCORE_PKG_SVH
 
-`include "vga_pkg.svh"
+`include "display_pkg.svh"
 
 package score_pkg;
 
-    import vga_pkg::X_POS_W;
-    import vga_pkg::Y_POS_W;
-    import vga_pkg::SCREEN_H_RES;
+    import display_pkg::X_POS_W;
+    import display_pkg::Y_POS_W;
+    import display_pkg::SCREEN_H_RES;
 
     parameter MAX_SCORE = 5;
     parameter M_SCORE_W = 4; // 4 to cover 0..9
