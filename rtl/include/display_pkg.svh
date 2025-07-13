@@ -1,7 +1,11 @@
-`ifndef DVI_PKG_SVH
-`define DVI_PKG_SVH
+`ifndef DISPLAY_PKG_SVH
+`define DISPLAY_PKG_SVH
 
-package dvi_pkg;
+`include "board_pkg.svh"
+
+package display_pkg;
+
+    import board_pkg::BOARD_CLK_MHZ;
 
     parameter SCREEN_H_RES  = 640;
     parameter SCREEN_V_RES  = 480;
@@ -29,11 +33,20 @@ package dvi_pkg;
     parameter X_POS_W       = $clog2(SCREEN_H_RES + 1);
     parameter Y_POS_W       = $clog2(SCREEN_V_RES + 1);
 
-    parameter HS_W       = $clog2(H_TOTAL + 1);
-    parameter VS_W       = $clog2(V_TOTAL + 1);
+    parameter HS_W          = $clog2(H_TOTAL + 1);
+    parameter VS_W          = $clog2(V_TOTAL + 1);
 
-    parameter COLOR_W       = 8;
+    // Display interface specific parameters
+    `ifdef DVI
+        parameter COLOR_W       = 8;
+    `elsif VGA
+        parameter PX_CNT_W      = $clog2(BOARD_CLK_MHZ / PIXEL_CLK_MHZ);
+        parameter PIXEL_CLK_MHZ = 25;
+        parameter COLOR_W       = 1;
+    `endif
 
-endpackage : dvi_pkg
+    parameter RGB_W             = COLOR_W * 3;
+
+endpackage : display_pkg
 
 `endif
