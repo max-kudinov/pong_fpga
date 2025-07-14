@@ -35,42 +35,42 @@ module game_display
 
     logic [  X_POS_W-1:0] x_pos;
     logic [  Y_POS_W-1:0] y_pos;
-    logic                 visible_range;
 
-    // TODO: find a proper solution to new frame gen
-    logic vsync;
-    logic vsync_prev;
+    logic                 vsync;
+    logic                 vsync_prev;
 
     `ifdef DVI
-        assign visible_range = '1;
 
         dvi_top i_dvi_top (
-            .vsync (vsync),
-            .serial_clk_i    ( display.serial_clk  ),
-            .pixel_clk_i     ( clk_i               ),
-            .rst_i           ( rst_i               ),
+            .serial_clk_i ( display.serial_clk  ),
+            .pixel_clk_i  ( clk_i               ),
+            .rst_i        ( rst_i               ),
 
-            .red_i           ( red                 ),
-            .green_i         ( green               ),
-            .blue_i          ( blue                ),
+            .red_i        ( red                 ),
+            .green_i      ( green               ),
+            .blue_i       ( blue                ),
 
-            .x_o             ( x_pos               ),
-            .y_o             ( y_pos               ),
+            .x_o          ( x_pos               ),
+            .y_o          ( y_pos               ),
 
-            .tmds_data_p     ( display.tmds_data_p ),
-            .tmds_data_n     ( display.tmds_data_n ),
+            .vsync_o      ( vsync               ),
 
-            .tmds_clk_p      ( display.tmds_clk_p  ),
-            .tmds_clk_n      ( display.tmds_clk_n  )
+            .tmds_data_p  ( display.tmds_data_p ),
+            .tmds_data_n  ( display.tmds_data_n ),
+
+            .tmds_clk_p   ( display.tmds_clk_p  ),
+            .tmds_clk_n   ( display.tmds_clk_n  )
         );
 
     `elsif VGA
 
-        // always_ff @(posedge clk_i)
-        //     if (rst_i)
-        //         vga_rgb_o <= '0;
-        //     else
-        //         vga_rgb_o <= vga_rgb_w;
+        logic visible_range;
+
+        always_ff @(posedge clk_i)
+            if (rst_i)
+                vga_rgb_o <= '0;
+            else
+                vga_rgb_o <= visible_range ? { red, green, blue } : '0;
 
         vga i_vga (
             .clk_i           ( clk_i         ),
@@ -111,31 +111,25 @@ module game_display
 
     // Output colors based on coordinates
     always_comb begin
-        red   = '0;
-        blue  = '0;
-        green = '0;
+        { red, green, blue } = '0;
 
-        if (visible_range) begin
-            // Score is in the "background", thus other sprites overwrite it
-            if (on_score)
-                { red, green, blue } = score_rgb;
+        // Score is in the "background", thus other sprites overwrite it
+        if (on_score)
+            { red, green, blue } = score_rgb;
 
-            for (int n = 0; n < N_SPRITES; n++) begin
-                if (on_sprite[n]) begin
-                    { red, green, blue } = sprite_rgb[n];
-                end
+        for (int n = 0; n < N_SPRITES; n++) begin
+            if (on_sprite[n]) begin
+                { red, green, blue } = sprite_rgb[n];
             end
-
-            // Display static separator
-            if (x_pos > SCREEN_H_RES / 2 - SEPARATOR_WIDTH / 2 &&
-                x_pos < SCREEN_H_RES / 2 + SEPARATOR_WIDTH / 2 &&
-               (y_pos + 9 & 31) < SEPARATOR_DOT_HEIGHT)
-               begin
-                   red   = '1;
-                   blue  = '1;
-                   green = '1;
-               end
         end
+
+        // Display static separator
+        if (x_pos > SCREEN_H_RES / 2 - SEPARATOR_WIDTH / 2 &&
+            x_pos < SCREEN_H_RES / 2 + SEPARATOR_WIDTH / 2 &&
+           (y_pos + 9 & 31) < SEPARATOR_DOT_HEIGHT)
+           begin
+                { red, green, blue } = '1;
+           end
     end
 
     always_ff @(posedge clk_i)

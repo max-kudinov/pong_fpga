@@ -17,16 +17,16 @@ module dvi_top
 
     output logic [X_POS_W-1:0] x_o,
     output logic [Y_POS_W-1:0] y_o,
+    output logic               vsync_o,
 
     output logic [        2:0] tmds_data_p,
     output logic [        2:0] tmds_data_n,
     output logic               tmds_clk_p,
-    output logic               tmds_clk_n,
-    output logic vsync
+    output logic               tmds_clk_n
 );
 
     logic               hsync;
-    // logic               vsync;
+    logic               vsync;
     logic               visible_range;
     logic               hsync_r;
     logic               vsync_r;
@@ -160,5 +160,8 @@ module dvi_top
         .out   ( tmds_clk_p  ),
         .out_n ( tmds_clk_n  )
     );
+
+    // Output vsync for external logic (new frame generation)
+    assign vsync_o = vsync_r;
 
 endmodule
