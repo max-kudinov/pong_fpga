@@ -33,7 +33,7 @@ module primer20k_board_top
         upload_rst_n = '0;
     end
 
-    always_ff @(posedge clk_i)
+    always_ff @(posedge pixel_clk)
         upload_rst_n <= '1;
 
     // Invert board signals
