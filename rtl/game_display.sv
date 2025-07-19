@@ -68,18 +68,20 @@ module game_display
 
         always_ff @(posedge clk_i)
             if (rst_i)
-                vga_rgb_o <= '0;
+                display.vga_rgb <= '0;
             else
-                vga_rgb_o <= visible_range ? { red, green, blue } : '0;
+                display.vga_rgb <= visible_range ? { red, green, blue } : '0;
+
+        assign vsync = display.vga_vs;
 
         vga i_vga (
-            .clk_i           ( clk_i         ),
-            .rst_i           ( rst_i         ),
-            .hsync_o         ( vga_hs_o      ),
-            .vsync_o         ( vga_vs_o      ),
-            .pixel_x_o       ( x_pos         ),
-            .pixel_y_o       ( y_pos         ),
-            .visible_range_o ( visible_range )
+            .clk_i           ( clk_i          ),
+            .rst_i           ( rst_i          ),
+            .hsync_o         ( display.vga_hs ),
+            .vsync_o         ( display.vga_vs ),
+            .pixel_x_o       ( x_pos          ),
+            .pixel_y_o       ( y_pos          ),
+            .visible_range_o ( visible_range  )
         );
 
     `endif

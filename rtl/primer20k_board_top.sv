@@ -1,5 +1,7 @@
 `include "board_pkg.svh"
 
+`ifdef PRIMER20K
+
 module primer20k_board_top
     import board_pkg::*;
 (
@@ -97,3 +99,5 @@ module primer20k_board_top
     );
 
 endmodule
+
+`endif
