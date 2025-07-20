@@ -42,7 +42,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE game_logic.sv
 set_global_assignment -name SYSTEMVERILOG_FILE game_display.sv
 set_global_assignment -name SYSTEMVERILOG_FILE sprite_display.sv
 set_global_assignment -name SYSTEMVERILOG_FILE sprite_collision.sv
-set_global_assignment -name SYSTEMVERILOG_FILE game_score.sv
+set_global_assignment -name SYSTEMVERILOG_FILE game_score_decoder.sv
 set_global_assignment -name SYSTEMVERILOG_FILE vga.sv
 set_global_assignment -name SYSTEMVERILOG_FILE score_display.sv
 set_global_assignment -name SYSTEMVERILOG_FILE strobe_gen.sv
