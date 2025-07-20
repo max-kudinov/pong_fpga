@@ -14,7 +14,7 @@ interface display_if;
         logic             vga_vs;
         logic             vga_hs;
     `else
-        initial $error("Wrong board configuration, either PRIMER20K or ZEOWAA should be defined")
+        initial $error("No video interface defined");
     `endif
 
 
