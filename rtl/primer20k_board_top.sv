@@ -5,6 +5,7 @@
 module primer20k_board_top
     import board_pkg::*;
 (
+    // verilator lint_off UNUSEDSIGNAL
     input  logic                 clk_i,
     input  logic                 rst_n_i,
     input  logic [   KEYS_W-1:0] keys_inv_i,
@@ -13,6 +14,7 @@ module primer20k_board_top
     output logic [          2:0] tmds_data_n,
     output logic                 tmds_clk_p,
     output logic                 tmds_clk_n
+    // verilator lint_off UNUSEDSIGNAL
 );
 
     display_if display ();

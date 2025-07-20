@@ -31,8 +31,8 @@ package sprite_pkg;
     parameter SEPARATOR_WIDTH      = 6;
     parameter SEPARATOR_DOT_HEIGHT = 18;
 
-    parameter DOWN_LIMIT           = X_POS_W' (SCREEN_V_RES - (SCREEN_BORDER + PADDLE_HEIGHT));
-    parameter PADDLE_CENTER        = X_POS_W' (PADDLE_HEIGHT / 2);
+    parameter DOWN_LIMIT           = Y_POS_W' (SCREEN_V_RES - (SCREEN_BORDER + PADDLE_HEIGHT));
+    parameter PADDLE_CENTER        = Y_POS_W' (PADDLE_HEIGHT / 2);
 
     typedef struct packed {
         logic [X_POS_W-1:0] x_pos;
