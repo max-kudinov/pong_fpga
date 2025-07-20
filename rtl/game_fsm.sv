@@ -8,8 +8,8 @@ module game_fsm
     input  logic                   clk_i,
     input  logic                   rst_i,
     input  logic                   game_rst_i,
-    input  logic [  M_SCORE_W-1:0] p_score_i,
-    input  logic [  M_SCORE_W-1:0] e_score_i,
+    input  logic [MAX_SCORE_W-1:0] p_score_i,
+    input  logic [MAX_SCORE_W-1:0] e_score_i,
     output logic                   game_en_o
 );
 

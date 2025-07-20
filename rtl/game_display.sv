@@ -1,5 +1,6 @@
 `include "display_pkg.svh"
 `include "sprite_pkg.svh"
+`include "score_pkg.svh"
 
 module game_display
     import display_pkg::COLOR_W,
@@ -12,15 +13,18 @@ module game_display
            sprite_pkg::PADDLE_HEIGHT,
            sprite_pkg::BALL_SIDE,
            sprite_pkg::SEPARATOR_WIDTH,
-           sprite_pkg::SEPARATOR_DOT_HEIGHT;
+           sprite_pkg::SEPARATOR_DOT_HEIGHT,
+           score_pkg::score_t;
 (
     input  logic         clk_i,
     input  logic         rst_i,
 
+    input  score_t       player_score_i,
+    input  score_t       enemy_score_i,
+
     output logic         new_frame_o,
 
     sprite_if.display_mp sprites_i [N_SPRITES],
-    score_if.display_mp  score_i,
     display_if           display
 );
 
@@ -102,13 +106,14 @@ module game_display
     endgenerate
 
     score_display i_score_display (
-        .clk_i         ( clk_i     ),
-        .rst_i         ( rst_i     ),
-        .pixel_x_i     ( x_pos     ),
-        .pixel_y_i     ( y_pos     ),
-        .on_score_o    ( on_score  ),
-        .display_rgb_o ( score_rgb ),
-        .score_i       ( score_i   )
+        .clk_i          ( clk_i         ),
+        .rst_i          ( rst_i         ),
+        .pixel_x_i      ( x_pos         ),
+        .pixel_y_i      ( y_pos         ),
+        .player_score_i (player_score_i ),
+        .enemy_score_i  (enemy_score_i  ),
+        .on_score_o     ( on_score      ),
+        .display_rgb_o  ( score_rgb     )
     );
 
     // Output colors based on coordinates

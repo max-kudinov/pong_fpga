@@ -9,18 +9,18 @@ package score_pkg;
     import display_pkg::Y_POS_W;
     import display_pkg::SCREEN_H_RES;
 
-    parameter MAX_SCORE = 5;
-    parameter M_SCORE_W = 4; // 4 to cover 0..9
+    parameter MAX_SCORE   = 5;
+    parameter MAX_SCORE_W = 4; // 4 to cover 0..9
 
-    parameter P_SCORE_X = X_POS_W' (SCREEN_H_RES - 120);
-    parameter P_SCORE_Y = Y_POS_W' (50);
+    parameter P_SCORE_X   = X_POS_W' (SCREEN_H_RES - 120);
+    parameter P_SCORE_Y   = Y_POS_W' (50);
 
-    parameter E_SCORE_X = X_POS_W' (120);
-    parameter E_SCORE_Y = Y_POS_W' (50);
+    parameter E_SCORE_X   = X_POS_W' (120);
+    parameter E_SCORE_Y   = Y_POS_W' (50);
 
-    parameter SCALE   = 10;
-    parameter SCORE_W = 3 * SCALE;
-    parameter SCORE_H = 5 * SCALE;
+    parameter SCALE_POW_2 = 3;
+    parameter SCORE_W     = 3;
+    parameter SCORE_H     = 5;
 
     typedef enum logic {
         ST_WAIT_START,
@@ -31,71 +31,69 @@ package score_pkg;
 
     // verilator lint_off ASCRANGE
 
-    typedef struct packed {
-        logic [X_POS_W-1:0]              x_pos;
-        logic [Y_POS_W-1:0]              y_pos;
-        logic [0:SCORE_H-1][0:SCORE_W-1] score_val;
-    } score_t;
+    typedef logic [0:SCORE_H-1][0:SCORE_W-1] score_t;
 
-    parameter [0:SCORE_H-1][0:SCORE_W-1] score0 = { { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } } };
+    typedef enum logic [0:SCORE_H-1][0:SCORE_W-1] {
+        ZERO  = { 1'b1, 1'b1, 1'b1,
+                  1'b1, 1'b0, 1'b1,
+                  1'b1, 1'b0, 1'b1,
+                  1'b1, 1'b0, 1'b1,
+                  1'b1, 1'b1, 1'b1 },
 
-    parameter [0:SCORE_H-1][0:SCORE_W-1] score1 = { { SCALE { {SCALE{1'b0}}, {SCALE{1'b1}}, {SCALE{1'b0}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b1}}, {SCALE{1'b0}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b1}}, {SCALE{1'b0}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b1}}, {SCALE{1'b0}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b1}}, {SCALE{1'b0}} } } };
+        ONE   = { 1'b0, 1'b1, 1'b0,
+                  1'b0, 1'b1, 1'b0,
+                  1'b0, 1'b1, 1'b0,
+                  1'b0, 1'b1, 1'b0,
+                  1'b0, 1'b1, 1'b0 },
 
-    parameter [0:SCORE_H-1][0:SCORE_W-1] score2 = { { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b0}}, {SCALE{1'b0}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } } };
+        TWO   = { 1'b1, 1'b1, 1'b1,
+                  1'b0, 1'b0, 1'b1,
+                  1'b1, 1'b1, 1'b1,
+                  1'b1, 1'b0, 1'b0,
+                  1'b1, 1'b1, 1'b1 },
 
-    parameter [0:SCORE_H-1][0:SCORE_W-1] score3 = { { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } } };
+        THREE = { 1'b1, 1'b1, 1'b1,
+                  1'b0, 1'b0, 1'b1,
+                  1'b1, 1'b1, 1'b1,
+                  1'b0, 1'b0, 1'b1,
+                  1'b1, 1'b1, 1'b1 },
 
-    parameter [0:SCORE_H-1][0:SCORE_W-1] score4 = { { SCALE { {SCALE{1'b1}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b0}}, {SCALE{1'b1}} } } };
+        FOUR  = { 1'b1, 1'b0, 1'b1,
+                  1'b1, 1'b0, 1'b1,
+                  1'b1, 1'b1, 1'b1,
+                  1'b0, 1'b0, 1'b1,
+                  1'b0, 1'b0, 1'b1 },
 
-    parameter [0:SCORE_H-1][0:SCORE_W-1] score5 = { { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b0}}, {SCALE{1'b0}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } } };
+        FIVE  = { 1'b1, 1'b1, 1'b1,
+                  1'b1, 1'b0, 1'b0,
+                  1'b1, 1'b1, 1'b1,
+                  1'b0, 1'b0, 1'b1,
+                  1'b1, 1'b1, 1'b1 },
 
-    parameter [0:SCORE_H-1][0:SCORE_W-1] score6 = { { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b0}}, {SCALE{1'b0}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } } };
+        SIX   = { 1'b1, 1'b1, 1'b1,
+                  1'b1, 1'b0, 1'b0,
+                  1'b1, 1'b1, 1'b1,
+                  1'b1, 1'b0, 1'b1,
+                  1'b1, 1'b1, 1'b1 },
 
-    parameter [0:SCORE_H-1][0:SCORE_W-1] score7 = { { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b0}}, {SCALE{1'b1}} } } };
+        SEVEN = { 1'b1, 1'b1, 1'b1,
+                  1'b0, 1'b0, 1'b1,
+                  1'b0, 1'b0, 1'b1,
+                  1'b0, 1'b0, 1'b1,
+                  1'b0, 1'b0, 1'b1 },
 
-    parameter [0:SCORE_H-1][0:SCORE_W-1] score8 = { { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } } };
+        EIGHT = { 1'b1, 1'b1, 1'b1,
+                  1'b1, 1'b0, 1'b1,
+                  1'b1, 1'b1, 1'b1,
+                  1'b1, 1'b0, 1'b1,
+                  1'b1, 1'b1, 1'b1 },
 
-    parameter [0:SCORE_H-1][0:SCORE_W-1] score9 = { { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b0}}, {SCALE{1'b0}}, {SCALE{1'b1}} } },
-                                                    { SCALE { {SCALE{1'b1}}, {SCALE{1'b1}}, {SCALE{1'b1}} } } };
+        NEIN  = { 1'b1, 1'b1, 1'b1,
+                  1'b1, 1'b0, 1'b1,
+                  1'b1, 1'b1, 1'b1,
+                  1'b0, 1'b0, 1'b1,
+                  1'b1, 1'b1, 1'b1 }
+    } score_e;
 
     // verilator lint_on ASCRANGE
 

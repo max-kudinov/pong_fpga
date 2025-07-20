@@ -14,7 +14,8 @@ module game_logic
            display_pkg::SCREEN_V_RES,
            board_pkg::BOARD_CLK_MHZ,
            lfsr_pkg::RND_NUM_W,
-           score_pkg::M_SCORE_W;
+           score_pkg::MAX_SCORE_W,
+           score_pkg::score_t;
 (
     input  logic              clk_i,
     input  logic              rst_i,
@@ -22,55 +23,57 @@ module game_logic
     input  logic              new_frame_i,
     output logic [LEDS_W-1:0] leds_o,
 
-    sprite_if.logic_mp        sprites_o [N_SPRITES],
-    score_if.control_mp       score_o
+    output score_t            player_score_o,
+    output score_t            enemy_score_o,
+
+    sprite_if.logic_mp        sprites_o [N_SPRITES]
 );
 
     // _Verilator doesn't like assignment to different struct fields
     // in different always blocks
 
     // verilator lint_off UNOPTFLAT
-    sprite_t                  player_w;
-    sprite_t                  enemy_w;
-    sprite_t                  ball_w;
+    sprite_t                   player_w;
+    sprite_t                   enemy_w;
+    sprite_t                   ball_w;
     // verilator lint_on UNOPTFLAT
 
-    sprite_t                  player_r;
-    sprite_t                  enemy_r;
-    sprite_t                  ball_r;
+    sprite_t                   player_r;
+    sprite_t                   enemy_r;
+    sprite_t                   ball_r;
 
-    logic                     key_up;
-    logic                     key_down;
+    logic                      key_up;
+    logic                      key_down;
 
-    logic                     update_enemy;
-    logic                     update_player;
+    logic                      update_enemy;
+    logic                      update_player;
 
-    logic                     game_en;
-    logic                     game_en_prev;
+    logic                      game_en;
+    logic                      game_en_prev;
 
-    logic    [ M_SCORE_W-1:0] player_score_w;
-    logic    [ M_SCORE_W-1:0] enemy_score_w;
-    logic    [ M_SCORE_W-1:0] player_score_r;
-    logic    [ M_SCORE_W-1:0] enemy_score_r;
+    logic    [MAX_SCORE_W-1:0] player_score_w;
+    logic    [MAX_SCORE_W-1:0] enemy_score_w;
+    logic    [MAX_SCORE_W-1:0] player_score_r;
+    logic    [MAX_SCORE_W-1:0] enemy_score_r;
 
-    logic    [   SPEED_W-1:0] ball_speed_x;
-    logic    [   SPEED_W-1:0] ball_speed_y;
-    logic    [   SPEED_W-1:0] ball_speed_x_w;
-    logic    [   SPEED_W-1:0] ball_speed_y_w;
+    logic    [   SPEED_W-1:0]  ball_speed_x;
+    logic    [   SPEED_W-1:0]  ball_speed_y;
+    logic    [   SPEED_W-1:0]  ball_speed_x_w;
+    logic    [   SPEED_W-1:0]  ball_speed_y_w;
 
-    logic    [   Y_POS_W-1:0] enemy_center;
+    logic    [   Y_POS_W-1:0]  enemy_center;
 
-    logic    [ RND_NUM_W-1:0] rnd_num;
+    logic    [ RND_NUM_W-1:0]  rnd_num;
 
-    logic    [N_HITBOXES-1:0] player_colls;
-    logic    [N_HITBOXES-1:0] enemy_colls;
+    logic    [N_HITBOXES-1:0]  player_colls;
+    logic    [N_HITBOXES-1:0]  enemy_colls;
 
-    sprite_t [N_HITBOXES-1:0] p_hitboxes;
-    sprite_t [N_HITBOXES-1:0] e_hitboxes;
+    sprite_t [N_HITBOXES-1:0]  p_hitboxes;
+    sprite_t [N_HITBOXES-1:0]  e_hitboxes;
 
-    sprite_if                p_hit [N_HITBOXES] ();
-    sprite_if                e_hit [N_HITBOXES] ();
-    sprite_if                b_hit              ();
+    sprite_if                  p_hit [N_HITBOXES] ();
+    sprite_if                  e_hit [N_HITBOXES] ();
+    sprite_if                  b_hit              ();
 
     always_comb begin
         p_hitboxes           = { N_HITBOXES { player_r } };
@@ -305,7 +308,7 @@ module game_logic
 
         if (ball_r.x_pos > SCREEN_H_RES - SCREEN_BORDER)
             enemy_score_w = enemy_score_r + 1'b1;
-            
+
         if (ball_r.x_pos < SCREEN_BORDER)
             player_score_w = player_score_r + 1'b1;
     end
@@ -316,12 +319,13 @@ module game_logic
         else
             game_en_prev <= game_en;
 
-    game_score i_game_score (
-        .clk_i          ( clk_i          ),
-        .rst_i          ( rst_i          ),
-        .player_score_i ( player_score_r ),
-        .enemy_score_i  ( enemy_score_r  ),
-        .score_o        ( score_o        )
+    game_score_decoder i_game_score (
+        .clk_i              ( clk_i          ),
+        .rst_i              ( rst_i          ),
+        .player_score_i     ( player_score_r ),
+        .enemy_score_i      ( enemy_score_r  ),
+        .player_score_dec_o ( player_score_o ),
+        .enemy_score_dec_o  ( enemy_score_o  )
     );
 
 endmodule
