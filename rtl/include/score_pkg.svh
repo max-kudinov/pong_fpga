@@ -33,7 +33,7 @@ package score_pkg;
 
     typedef logic [0:SCORE_H-1][0:SCORE_W-1] score_t;
 
-    typedef enum logic [0:SCORE_H-1][0:SCORE_W-1] {
+    typedef enum logic [0:SCORE_H*SCORE_W-1] {
         ZERO  = { 1'b1, 1'b1, 1'b1,
                   1'b1, 1'b0, 1'b1,
                   1'b1, 1'b0, 1'b1,
