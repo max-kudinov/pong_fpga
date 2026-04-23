@@ -9,12 +9,12 @@ then
     exit 1
 fi
 
-if ! nextpnr-himbaechel --json design.json           \
+if ! nextpnr-himbaechel --json design.json      \
                    --write placed.json          \
                    --device GW2A-LV18PG256C8/I7 \
                    --vopt family=GW2A-18        \
-                   --vopt cst=yosys/pins.cst     \
-                   --sdc yosys/constrainsts.sdc
+                   --vopt cst=yosys/pins.cst    \
+                   --sdc yosys/constraints.sdc
 then
     exit 1
 fi
